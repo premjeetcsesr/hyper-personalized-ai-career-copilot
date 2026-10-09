@@ -1,0 +1,33 @@
+{
+  "name": "technova-career-copilot-server",
+  "version": "1.0.0",
+  "description": "Backend API for Hyper-Personalized AI Career Co-Pilot by Team Technova001",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "mammoth": "^1.9.0",
+    "mongoose": "^9.11.1",
+    "multer": "^1.4.5-lts.1",
+    "pdf-parse": "^1.1.1"
+  },
+  "keywords": [
+    "ai",
+    "career",
+    "copilot",
+    "hackathon",
+    "technova001",
+    "kit"
+  ],
+  "author": "Team Technova001 - Kanpur Institute of Technology",
+  "license": "MIT"
+}
