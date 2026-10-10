@@ -56,7 +56,7 @@ export default function LoginPage() {
           Sign In to Your Career Portal
         </h2>
         <p className="mt-1 text-xs text-slate-500">
-          Team Technova001 • Kanpur Institute of Technology
+          Team Technovoo1 • AI Career Co-Pilot
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export default function LoginPage() {
               loading={demoLoading}
               icon={Sparkles}
             >
-              Sign In as Demo Student (Aarav Sharma - KIT)
+              Sign In as Demo Student
             </Button>
           </div>
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="student@kit.ac.in"
+                  placeholder="student@example.com"
                   className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600"
                 />
               </div>

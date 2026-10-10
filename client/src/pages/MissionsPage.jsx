@@ -323,7 +323,7 @@ export default function MissionsPage() {
                   <Github className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                   <input
                     type="url"
-                    placeholder="https://github.com/aarav-kit-dev/mission-container"
+                    placeholder="https://github.com/your-username/mission-solution"
                     value={repoUrl}
                     onChange={(e) => setRepoUrl(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20"

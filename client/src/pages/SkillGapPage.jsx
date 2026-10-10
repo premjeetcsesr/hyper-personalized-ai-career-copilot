@@ -137,7 +137,7 @@ export default function SkillGapPage() {
       {/* Bar Chart Comparison */}
       <Card
         title="Competency Deficiencies: Current vs Target Benchmark"
-        subtitle={data?.benchmarkType || 'Curated Academic & Industry Benchmark (Technova001 - KIT)'}
+        subtitle={data?.benchmarkType || 'Industry Standard Competency Benchmark (Team Technovoo1)'}
       >
         <SkillComparisonChart data={allGaps} />
         <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">

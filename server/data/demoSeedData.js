@@ -6,25 +6,25 @@ async function getDemoSeedData() {
 
   return {
     user: {
-      name: 'Aarav Sharma',
-      email: 'aarav.technova@kit.ac.in',
+      name: 'Premjeet Kumar',
+      email: 'student.dev@technovoo.ac.in',
       passwordHash,
       role: 'student',
       isDemoUser: true
     },
     profile: {
-      fullName: 'Aarav Sharma',
-      college: 'Kanpur Institute of Technology',
+      fullName: 'Premjeet Kumar',
+      college: 'Institute of Engineering & Technology',
       degree: 'B.Tech',
       branch: 'Computer Science and Engineering',
       graduationYear: 2026,
       currentSemester: 'Semester 7',
       targetRole: 'Full-Stack Developer',
       weeklyLearningHours: 16,
-      bio: 'Final year CSE undergraduate at Kanpur Institute of Technology passionate about modern full-stack web engineering, cloud-native deployments, and distributed systems.',
-      githubUsername: 'aarav-kit-dev',
-      linkedinUrl: 'https://linkedin.com/in/aarav-sharma-kit',
-      portfolioUrl: 'https://aarav-dev.technova.ac.in',
+      bio: 'Final year CSE undergraduate passionate about modern full-stack web engineering, cloud-native deployments, and distributed systems.',
+      githubUsername: 'premjeetcsesr',
+      linkedinUrl: 'https://linkedin.com/in/student-dev',
+      portfolioUrl: 'https://student-dev.portfolio.io',
       claimedSkills: [
         'JavaScript',
         'React.js',
@@ -39,18 +39,18 @@ async function getDemoSeedData() {
           title: 'Campus Grievance & Facility Portal',
           description: 'MERN stack web application with JWT auth, role-based admin dashboard, and ticket escalation workflow.',
           technologies: ['React.js', 'Node.js', 'Express', 'MongoDB', 'Tailwind CSS'],
-          repoUrl: 'https://github.com/aarav-kit-dev/campus-grievance-portal',
-          liveUrl: 'https://campus-kit.vercel.app'
+          repoUrl: 'https://github.com/premjeetcsesr/campus-grievance-portal',
+          liveUrl: 'https://campus-portal.vercel.app'
         },
         {
           title: 'Real-Time Code Collab Sandbox',
           description: 'Collaborative code editor utilizing WebSockets, syntax highlighting, and execution sandbox.',
           technologies: ['React.js', 'Socket.io', 'Node.js', 'Tailwind CSS'],
-          repoUrl: 'https://github.com/aarav-kit-dev/collab-code-sandbox'
+          repoUrl: 'https://github.com/premjeetcsesr/collab-code-sandbox'
         }
       ],
       certifications: [
-        { name: 'Full-Stack Web Development Bootcamp', issuer: 'Coursera / IIT Kanpur Outreach', year: 2025 }
+        { name: 'Full-Stack Web Development Bootcamp', issuer: 'Coursera / Professional Outreach', year: 2025 }
       ],
       completenessScore: 85
     },

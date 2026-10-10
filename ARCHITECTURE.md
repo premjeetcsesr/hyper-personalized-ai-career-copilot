@@ -1,6 +1,6 @@
 # System Architecture & Technical Specifications
 ## Hyper-Personalized AI Career Co-Pilot
-**Team Technova001 | Kanpur Institute of Technology**
+**Team Technovoo1**
 
 ---
 
@@ -20,7 +20,7 @@
          │
          ▼
 [Evidence Extraction Engine]
-  ├── NLP Semantic Pattern Matching / Gemini 1.5 Flash LLM
+  ├── NLP Semantic Pattern Matching / Gemini 2.5 Flash LLM
   └── Sentence-Level Context Citation Extraction
          │
          ▼
@@ -52,7 +52,7 @@
 ## 2. Core Mathematical Formulations
 
 ### 2.1 Skill Gap Priority Index
-Unlike naive ranking models that only evaluate raw score differences, the Technova001 engine prioritizes gaps based on role criticality, deficiency distance, and evidentiary certainty:
+Unlike naive ranking models that only evaluate raw score differences, the Technovoo1 engine prioritizes gaps based on role criticality, deficiency distance, and evidentiary certainty:
 
 $$\text{Priority Score} = (\Delta \times 0.50) + (W_{\text{role}} \times 30) + ((100 - C_{\text{evid}}) \times 0.20)$$
 

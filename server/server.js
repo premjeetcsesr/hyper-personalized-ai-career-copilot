@@ -67,8 +67,7 @@ const fs = require('fs');
 app.get('/api', (req, res) => {
   res.json({
     name: 'Hyper-Personalized AI Career Co-Pilot API',
-    team: 'Technova001',
-    college: 'Kanpur Institute of Technology',
+    team: 'Technovoo1',
     version: '1.0.0',
     documentation: '/api/demo/health'
   });
@@ -94,8 +93,8 @@ async function startServer() {
   await connectDB();
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`=======================================================`);
-    console.log(`🚀 Technova001 AI Career Co-Pilot API Server`);
-    console.log(`🏛️ Kanpur Institute of Technology | Team Technova001`);
+    console.log(`🚀 Technovoo1 AI Career Co-Pilot API Server`);
+    console.log(`💡 Principle: Evidence Before Inference | Team Technovoo1`);
     console.log(`🌐 Server running at: http://localhost:${PORT} and http://127.0.0.1:${PORT}`);
     console.log(`📊 Health Endpoint: http://localhost:${PORT}/api/demo/health`);
     console.log(`=======================================================`);

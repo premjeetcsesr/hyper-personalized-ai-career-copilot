@@ -15,7 +15,7 @@ const userSchema = new Schema({
 const profileSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, unique: true },
   fullName: { type: String, default: '' },
-  college: { type: String, default: 'Kanpur Institute of Technology' },
+  college: { type: String, default: '' },
   degree: { type: String, default: 'B.Tech' },
   branch: { type: String, default: 'Computer Science and Engineering' },
   graduationYear: { type: Number, default: 2026 },

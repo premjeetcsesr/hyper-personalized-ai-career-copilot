@@ -21,7 +21,7 @@ import Badge from '../components/common/Badge';
 
 export default function GitHubAnalyzerPage() {
   const { profile } = useAuth();
-  const [username, setUsername] = useState(profile?.githubUsername || 'aarav-kit-dev');
+  const [username, setUsername] = useState(profile?.githubUsername || 'premjeetcsesr');
   const [analyzing, setAnalyzing] = useState(false);
   const [githubData, setGithubData] = useState(null);
   const [syncing, setSyncing] = useState(false);
@@ -86,7 +86,7 @@ export default function GitHubAnalyzerPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter public GitHub username (e.g. aarav-kit-dev or torvalds)"
+              placeholder="Enter public GitHub username (e.g. premjeetcsesr or octocat)"
               className="w-full pl-10 pr-3 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
             />
           </div>

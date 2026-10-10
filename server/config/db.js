@@ -4,7 +4,7 @@ let isConnected = false;
 let isUsingMemoryStore = false;
 
 const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/technova_career_copilot';
+  const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/technovoo_career_copilot';
   try {
     mongoose.set('strictQuery', false);
     const conn = await mongoose.connect(uri, {

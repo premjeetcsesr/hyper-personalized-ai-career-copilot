@@ -11,7 +11,7 @@ async function fetchGitHubUserRepos(username) {
   
   const headers = {
     'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'Technova001-AI-Career-CoPilot'
+    'User-Agent': 'Technovoo1-AI-Career-CoPilot'
   };
 
   if (process.env.GITHUB_TOKEN) {
@@ -146,7 +146,7 @@ function analyzeReposData(user, rawRepos, isSimulated = false) {
     avatarUrl: user.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
     publicReposCount: user.public_repos || processedRepos.length,
     followers: user.followers || 12,
-    bio: user.bio || 'Computer Science Engineering student at Kanpur Institute of Technology',
+    bio: user.bio || 'Computer Science & Engineering student',
     topLanguages: Object.keys(languageStats).slice(0, 5),
     repositories: processedRepos,
     observedSignals,
@@ -160,11 +160,11 @@ function analyzeReposData(user, rawRepos, isSimulated = false) {
 
 function getFallbackGitHubData(username, reason) {
   const dummyUser = {
-    login: username || 'technova-student',
+    login: username || 'student-dev',
     avatar_url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150',
     public_repos: 6,
     followers: 18,
-    bio: 'CSE Undergraduate | Kanpur Institute of Technology | Full-Stack & AI Enthusiast'
+    bio: 'CSE Undergraduate | Full-Stack & AI Enthusiast'
   };
 
   const dummyRepos = [
@@ -182,10 +182,10 @@ function getFallbackGitHubData(username, reason) {
     },
     {
       id: 102,
-      name: 'ai-resume-parser-kit',
-      full_name: `${username}/ai-resume-parser-kit`,
+      name: 'ai-resume-parser-tool',
+      full_name: `${username}/ai-resume-parser-tool`,
       description: 'Python & FastAPI microservice extracting skill entities from unstructured documents.',
-      html_url: `https://github.com/${username}/ai-resume-parser-kit`,
+      html_url: `https://github.com/${username}/ai-resume-parser-tool`,
       language: 'Python',
       stargazers_count: 8,
       forks_count: 3,

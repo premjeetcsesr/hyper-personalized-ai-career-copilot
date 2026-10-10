@@ -36,9 +36,9 @@ export default function DemoBanner() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <span className="font-semibold text-blue-300">Team Technova001</span>
+          <span className="font-semibold text-blue-300">Team Technovoo1</span>
           <span className="text-slate-400">•</span>
-          <span className="text-slate-300 font-medium">Kanpur Institute of Technology</span>
+          <span className="text-slate-300 font-medium">Live API Intelligence</span>
           <span className="text-slate-400">•</span>
           <span className="inline-flex items-center gap-1 text-slate-300">
             <Cpu className="w-3.5 h-3.5 text-blue-400" />

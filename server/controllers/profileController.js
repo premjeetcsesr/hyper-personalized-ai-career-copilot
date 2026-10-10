@@ -7,7 +7,7 @@ exports.getProfile = async (req, res, next) => {
       profile = await Profile.create({
         userId: req.userId,
         fullName: req.user.name,
-        college: 'Kanpur Institute of Technology',
+        college: '',
         targetRole: 'Full-Stack Developer'
       });
     }

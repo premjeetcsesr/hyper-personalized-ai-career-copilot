@@ -34,7 +34,7 @@ export default function LandingPage() {
         <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2 py-0.5 rounded text-[11px] font-semibold">
           HACKATHON SHOWCASE
         </span>
-        <span>Team Technova001 • Kanpur Institute of Technology (KIT)</span>
+        <span>Team Technovoo1 • AI Career Co-Pilot</span>
       </div>
 
       {/* Navigation */}
@@ -137,7 +137,7 @@ export default function LandingPage() {
             </span>
             <span className="flex items-center gap-1.5">
               <GraduationCap className="w-4 h-4 text-indigo-600" />
-              Kanpur Institute of Technology
+              Career Readiness Verification
             </span>
           </div>
         </div>
@@ -285,7 +285,7 @@ export default function LandingPage() {
             Ready for the Live Hackathon Demonstration?
           </h2>
           <p className="mt-4 text-sm text-slate-300 max-w-xl mx-auto">
-            Experience the complete student journey with pre-seeded demo artifacts for Kanpur Institute of Technology or start fresh with your own credentials.
+            Experience the complete student journey with live AI evidence analysis or start fresh with your own credentials.
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button

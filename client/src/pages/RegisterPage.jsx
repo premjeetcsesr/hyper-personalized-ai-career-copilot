@@ -49,7 +49,7 @@ export default function RegisterPage() {
         </h2>
         <p className="mt-1 text-xs text-slate-500 flex items-center justify-center gap-1">
           <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
-          Kanpur Institute of Technology • Team Technova001
+          Team Technovoo1 • AI Career Co-Pilot
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export default function RegisterPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Aarav Sharma"
+                  placeholder="e.g. Premjeet"
                   className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600"
                 />
               </div>
@@ -87,7 +87,7 @@ export default function RegisterPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@kit.ac.in"
+                  placeholder="student@example.com"
                   className="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-600"
                 />
               </div>

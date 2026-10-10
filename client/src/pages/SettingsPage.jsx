@@ -43,7 +43,7 @@ export default function SettingsPage() {
     setReloadingDemo(true);
     try {
       await loadDemoAccount();
-      setNotice('Official Technova001 Hackathon Demo Scenario reloaded successfully!');
+      setNotice('Official Technovoo1 Hackathon Demo Scenario reloaded successfully!');
       setTimeout(() => setNotice(''), 4000);
       window.location.reload();
     } catch (e) {
@@ -130,7 +130,7 @@ export default function SettingsPage() {
                 Reset to Pristine Hackathon Demo Scenario
               </span>
               <p className="text-[11px] text-slate-600 mt-0.5">
-                Restores Aarav Sharma (Kanpur Institute of Technology), sample resume, GitHub repositories, Docker gaps, and mock interview reports.
+                Restores sample student dataset, sample resume, GitHub repositories, Docker gaps, and mock interview reports.
               </p>
             </div>
 
@@ -174,10 +174,7 @@ export default function SettingsPage() {
             <strong>Project:</strong> Hyper-Personalized AI Career Co-Pilot
           </p>
           <p>
-            <strong>Team Name:</strong> Technova001
-          </p>
-          <p>
-            <strong>Institution:</strong> Kanpur Institute of Technology (KIT), Uttar Pradesh, India
+            <strong>Team Name:</strong> Technovoo1
           </p>
           <p>
             <strong>Guiding Principle:</strong> Evidence Before Inference

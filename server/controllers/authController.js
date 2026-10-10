@@ -34,7 +34,7 @@ exports.register = async (req, res, next) => {
     const profile = await Profile.create({
       userId: newUser._id,
       fullName: newUser.name,
-      college: 'Kanpur Institute of Technology',
+      college: '',
       degree: 'B.Tech',
       branch: 'Computer Science and Engineering',
       graduationYear: 2026,

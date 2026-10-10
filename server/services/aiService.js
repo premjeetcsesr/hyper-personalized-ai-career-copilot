@@ -19,38 +19,43 @@ async function callLLM({ prompt, systemPrompt = '', responseSchema = null }) {
   const openaiKey = process.env.OPENAI_API_KEY;
 
   if (geminiKey) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`;
-      const payload = {
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: `${systemPrompt ? systemPrompt + '\n\n' : ''}${prompt}\n\nIMPORTANT: Respond with pure, valid JSON only. Do not wrap in markdown or backticks.` }
-            ]
+    const geminiModels = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-pro'];
+    for (const model of geminiModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+        const payload = {
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                { text: `${systemPrompt ? systemPrompt + '\n\n' : ''}${prompt}\n\nIMPORTANT: Respond with pure, valid JSON only. Do not wrap in markdown or backticks.` }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 8192,
+            responseMimeType: 'application/json'
           }
-        ],
-        generationConfig: {
-          temperature: 0.3,
-          maxOutputTokens: 2048,
-          responseMimeType: 'application/json'
-        }
-      };
-
-      const res = await axios.post(url, payload, { timeout: 15000 });
-      const text = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (text) {
-        const cleaned = cleanJsonString(text);
-        return {
-          data: JSON.parse(cleaned),
-          source: 'Gemini 1.5 Flash (Live AI)',
-          live: true
         };
+
+        const res = await axios.post(url, payload, { timeout: 15000 });
+        const text = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          const cleaned = cleanJsonString(text);
+          return {
+            data: JSON.parse(cleaned),
+            source: `Google Gemini (${model} - Live AI)`,
+            live: true
+          };
+        }
+      } catch (err) {
+        console.warn(`[AI Service] Gemini (${model}) failed: ${err.response?.data?.error?.message || err.message}`);
       }
-    } catch (err) {
-      console.warn(`[AI Service] Gemini API call failed (${err.message}). Using deterministic fallback.`);
     }
-  } else if (openaiKey) {
+  }
+
+  if (openaiKey) {
     try {
       const res = await axios.post(
         'https://api.openai.com/v1/chat/completions',
@@ -88,9 +93,20 @@ async function callLLM({ prompt, systemPrompt = '', responseSchema = null }) {
 function cleanJsonString(str) {
   let cleaned = str.trim();
   if (cleaned.startsWith('```json')) {
-    cleaned = cleaned.replace(/^```json\s*/, '').replace(/```\s*$/, '');
+    cleaned = cleaned.replace(/^```json\s*/i, '').replace(/```\s*$/i, '');
   } else if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```\s*/, '').replace(/```\s*$/, '');
+    cleaned = cleaned.replace(/^```\s*/i, '').replace(/```\s*$/i, '');
+  }
+  cleaned = cleaned.trim();
+  const firstBrace = cleaned.indexOf('{');
+  const lastBrace = cleaned.lastIndexOf('}');
+  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    return cleaned.substring(firstBrace, lastBrace + 1);
+  }
+  const firstBracket = cleaned.indexOf('[');
+  const lastBracket = cleaned.lastIndexOf(']');
+  if (firstBracket !== -1 && lastBracket !== -1 && lastBracket > firstBracket) {
+    return cleaned.substring(firstBracket, lastBracket + 1);
   }
   return cleaned;
 }
@@ -177,14 +193,14 @@ function ruleBasedResumeAnalysis(text, targetRole) {
   return {
     candidateName: extractName(text),
     education: {
-      institution: lower.includes('kanpur institute') ? 'Kanpur Institute of Technology' : 'Engineering Institution',
-      degree: 'B.Tech in Computer Science',
+      institution: extractInstitution(text),
+      degree: 'B.Tech / Bachelor of Engineering',
       year: '2026'
     },
     observedSkills: extractedSkills,
     projectSummaries: [
       {
-        title: 'Full-Stack Web Development Project',
+        title: 'Full-Stack Software Engineering Project',
         techStack: extractedSkills.slice(0, 4).map(s => s.skill),
         description: 'Demonstrated end-to-end integration with client state and backend routing.'
       }
@@ -192,7 +208,7 @@ function ruleBasedResumeAnalysis(text, targetRole) {
     resumeCritique: {
       missingSignals: missingSkills,
       strengths: [
-        'Solid foundational web stack presence (React, Node, Express)',
+        'Solid foundational web stack presence',
         'Clear academic technical trajectory',
         'Demonstrated hands-on project exposure'
       ],
@@ -203,16 +219,20 @@ function ruleBasedResumeAnalysis(text, targetRole) {
       ]
     },
     targetRoleAlignmentScore: Math.min(88, Math.max(50, extractedSkills.length * 8)),
-    engine: 'Deterministic Semantic Analysis Engine (Hackathon Safe Mode)'
+    engine: 'Deterministic Semantic Analysis Engine'
   };
 }
 
 function extractName(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  if (lines.length > 0 && lines[0].length < 40) {
-    return lines[0];
-  }
-  return 'Aarav Sharma';
+  const candidateLine = lines.find(l => l.length > 2 && l.length < 40 && !/resume|curriculum|vitae|email|phone|profile/i.test(l));
+  return candidateLine || 'Student Candidate';
+}
+
+function extractInstitution(text) {
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  const collegeLine = lines.find(l => /university|institute|college|school of engineering|iit|nit|iiit/i.test(l));
+  return collegeLine ? collegeLine.slice(0, 60) : 'Engineering Institution';
 }
 
 /**
@@ -429,6 +449,44 @@ async function generateInterviewReport({ questionsAndAnswers, role }) {
     questionsAndAnswers.reduce((acc, q) => acc + (q.evaluation?.score || 70), 0) / (questionsAndAnswers.length || 1)
   );
 
+  const prompt = `
+Analyze this candidate's completed technical mock interview session for the target role: "${role}".
+Q&A Data:
+${JSON.stringify(questionsAndAnswers.map(q => ({
+  question: q.questionText,
+  competency: q.competency,
+  userAnswer: q.userAnswer,
+  score: q.evaluation?.score,
+  strengths: q.evaluation?.strengths,
+  weaknesses: q.evaluation?.weaknesses
+})))}
+
+Generate an objective, highly specific, evidence-grounded performance report JSON:
+{
+  "overallScore": number (0-100),
+  "dimensionScores": {
+    "technical": number (0-100),
+    "reasoning": number (0-100),
+    "systemDesign": number (0-100),
+    "communication": number (0-100)
+  },
+  "executiveSummary": "Personalized 2-3 sentence performance summary citing specific answers",
+  "topStrengths": ["...", "...", "..."],
+  "criticalGaps": ["...", "..."],
+  "recommendedPracticeMissions": ["...", "...", "..."],
+  "skillsVerified": ["..."]
+}
+`;
+
+  const liveResult = await callLLM({
+    prompt,
+    systemPrompt: 'You are a Senior Engineering Director reviewing a candidate interview scorecard. Be precise and constructively critical.'
+  });
+
+  if (liveResult && liveResult.data) {
+    return { ...liveResult.data, engine: liveResult.source };
+  }
+
   return {
     overallScore: avgScore,
     dimensionScores: {
@@ -452,7 +510,8 @@ async function generateInterviewReport({ questionsAndAnswers, role }) {
       'Add end-to-end integration test suites with Supertest',
       'Benchmark API endpoint throughput under simulated concurrent connections'
     ],
-    skillsVerified: avgScore >= 75 ? ['Full-Stack Architecture', 'Web Security Protocols'] : ['Basic API Design']
+    skillsVerified: avgScore >= 75 ? ['Full-Stack Architecture', 'Web Security Protocols'] : ['Basic API Design'],
+    engine: 'Deterministic Assessment Engine'
   };
 }
 
@@ -465,6 +524,6 @@ module.exports = {
   getApiKeyStatus: () => ({
     hasGeminiKey: !!process.env.GEMINI_API_KEY,
     hasOpenAIKey: !!process.env.OPENAI_API_KEY,
-    activeEngine: process.env.GEMINI_API_KEY ? 'Google Gemini 1.5 Flash' : (process.env.OPENAI_API_KEY ? 'OpenAI GPT-4o-mini' : 'Deterministic Semantic Engine (Resilient Hackathon Safe Mode)')
+    activeEngine: process.env.GEMINI_API_KEY ? 'Google Gemini 2.5 Flash (Live AI)' : (process.env.OPENAI_API_KEY ? 'OpenAI GPT-4o-mini (Live AI)' : 'Deterministic Semantic Engine')
   })
 };

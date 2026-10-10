@@ -13,8 +13,7 @@ router.get('/health', (req, res) => {
   res.json({
     success: true,
     platform: 'Hyper-Personalized AI Career Co-Pilot',
-    team: 'Technova001',
-    institution: 'Kanpur Institute of Technology',
+    team: 'Technovoo1',
     status: 'ONLINE',
     timestamp: new Date(),
     database: dbStatus,

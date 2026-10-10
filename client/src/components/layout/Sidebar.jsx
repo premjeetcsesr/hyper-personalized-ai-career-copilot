@@ -60,7 +60,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
                 Career Co-Pilot
               </h1>
               <span className="text-[10px] uppercase tracking-wider text-blue-400 font-semibold block mt-0.5">
-                Technova001 • KIT
+                Technovoo1 • AI Co-Pilot
               </span>
             </div>
           </div>
@@ -114,10 +114,10 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
               {user?.name?.charAt(0) || 'U'}
             </div>
             <div className="truncate flex-1">
-              <div className="text-xs font-semibold text-white truncate">{user?.name || 'Aarav Sharma'}</div>
+              <div className="text-xs font-semibold text-white truncate">{user?.name || 'Student'}</div>
               <div className="text-[11px] text-slate-400 truncate flex items-center gap-1">
                 <GraduationCap className="w-3 h-3 text-blue-400 shrink-0" />
-                <span>Kanpur Inst. of Tech</span>
+                <span>{profile?.college || 'Career Candidate'}</span>
               </div>
             </div>
           </div>

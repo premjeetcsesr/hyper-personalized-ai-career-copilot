@@ -82,11 +82,11 @@ export default function Navbar({ setMobileOpen }) {
         {/* User initials */}
         <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
           <div className="w-8 h-8 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-            {user?.name?.charAt(0) || 'A'}
+            {user?.name?.charAt(0) || 'U'}
           </div>
           <div className="hidden lg:block text-left">
-            <span className="text-xs font-semibold text-slate-800 block leading-tight">{user?.name || 'Aarav'}</span>
-            <span className="text-[10px] text-slate-400 block leading-tight">Student • KIT</span>
+            <span className="text-xs font-semibold text-slate-800 block leading-tight">{user?.name || 'Student'}</span>
+            <span className="text-[10px] text-slate-400 block leading-tight">Career Scholar • Technovoo1</span>
           </div>
         </div>
       </div>

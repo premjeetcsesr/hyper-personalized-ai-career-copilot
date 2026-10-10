@@ -1,6 +1,6 @@
 /**
  * Role Competency Profiles & Market Benchmark Definitions
- * Source: Curated Industry & Academic Benchmark (Team Technova001, KIT)
+ * Source: Industry Standard Competency Benchmark (Team Technovoo1)
  * Disclaimer: All benchmarks are decision-support estimates and curated references, not speculative live market claims.
  */
 

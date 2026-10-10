@@ -67,7 +67,7 @@ exports.submitMission = async (req, res, next) => {
       {
         status: 'verified',
         submission: {
-          githubRepo: githubRepo || 'https://github.com/technova-student/mission-deliverable',
+          githubRepo: githubRepo || '',
           liveUrl: liveUrl || '',
           reflectionNotes: reflectionNotes || 'Implemented required modular architecture with defensive input sanitization.',
           submittedAt: new Date(),

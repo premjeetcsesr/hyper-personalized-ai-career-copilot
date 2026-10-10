@@ -6,7 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('technova_token') || null);
+  const [token, setToken] = useState(localStorage.getItem('technovoo_token') || localStorage.getItem('technova_token') || null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDemoMode, setIsDemoMode] = useState(false);
 
@@ -20,6 +20,7 @@ export function AuthProvider({ children }) {
           setIsDemoMode(!!res.data.user.isDemoUser);
         } catch (err) {
           console.warn('[AuthContext] Session invalid or expired.');
+          localStorage.removeItem('technovoo_token');
           localStorage.removeItem('technova_token');
           setToken(null);
           setUser(null);
@@ -36,7 +37,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await authAPI.login({ email, password });
       const newToken = res.data.token;
-      localStorage.setItem('technova_token', newToken);
+      localStorage.setItem('technovoo_token', newToken);
       setToken(newToken);
       setUser(res.data.user);
       setProfile(res.data.profile);
@@ -57,7 +58,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await authAPI.register({ name, email, password });
       const newToken = res.data.token;
-      localStorage.setItem('technova_token', newToken);
+      localStorage.setItem('technovoo_token', newToken);
       setToken(newToken);
       setUser(res.data.user);
       setProfile(res.data.profile);
@@ -78,7 +79,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await demoAPI.loadSample();
       const newToken = res.data.token;
-      localStorage.setItem('technova_token', newToken);
+      localStorage.setItem('technovoo_token', newToken);
       setToken(newToken);
       setUser(res.data.user);
       setProfile(res.data.profile);
@@ -95,6 +96,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
+    localStorage.removeItem('technovoo_token');
     localStorage.removeItem('technova_token');
     setToken(null);
     setUser(null);

@@ -42,7 +42,7 @@ export default function OnboardingPage() {
   // Form State
   const [formData, setFormData] = useState({
     fullName: user?.name || '',
-    college: 'Kanpur Institute of Technology',
+    college: profile?.college || '',
     degree: 'B.Tech',
     branch: 'Computer Science and Engineering',
     graduationYear: 2026,
@@ -144,7 +144,7 @@ export default function OnboardingPage() {
             Personalize Your Career Journey
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Kanpur Institute of Technology • Team Technova001
+            Team Technovoo1 • Profile Calibration Wizard
           </p>
         </div>
 

@@ -106,18 +106,24 @@ export default function DashboardPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                Kanpur Institute of Technology
-              </span>
+              {profile?.college ? (
+                <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                  {profile.college}
+                </span>
+              ) : (
+                <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2.5 py-0.5 rounded-full text-xs font-semibold">
+                  Active Career Profile
+                </span>
+              )}
               {isDemoMode && (
                 <span className="bg-amber-500/30 text-amber-200 border border-amber-400/30 px-2.5 py-0.5 rounded-full text-[11px] font-medium">
-                  Illustrative Demo Student
+                  Sample Sandbox Mode
                 </span>
               )}
             </div>
 
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Welcome back, {user?.name || 'Aarav Sharma'}
+              Welcome back, {user?.name || 'Student'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
               Target Career Role: <strong className="text-blue-300">{profile?.targetRole || 'Full-Stack Developer'}</strong>. 

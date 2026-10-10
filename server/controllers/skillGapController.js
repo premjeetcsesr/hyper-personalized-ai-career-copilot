@@ -49,7 +49,7 @@ exports.getSkillGaps = async (req, res, next) => {
       targetRole,
       roleDescription: roleInfo.description,
       availableRoles: getAvailableRoles(),
-      benchmarkType: 'Curated Academic & Industry Benchmark (Technova001 - KIT)',
+      benchmarkType: 'Industry Standard Competency Benchmark (Team Technovoo1)',
       skills: aggregatedSkills,
       gaps,
       disclaimer: 'Skill scores and gap priorities are decision-support estimates calibrated against curated industry benchmarks.'

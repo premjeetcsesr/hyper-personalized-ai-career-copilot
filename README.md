@@ -1,6 +1,6 @@
 # Hyper-Personalized AI Career Co-Pilot
-### Team Technova001 | Kanpur Institute of Technology (KIT)
-*College Hackathon 2026 Showcase Project*
+### Team Technovoo1
+*AI-Powered Career Intelligence & Readiness Platform*
 
 [![Node.js Version](https://img.shields.io/badge/Node.js-v20%2B-green.svg)](https://nodejs.org/)
 [![React](https://img.shields.io/badge/Frontend-React%2018%20%2B%20Vite-blue.svg)](https://vitejs.dev/)
@@ -14,7 +14,7 @@
 
 Students frequently struggle to understand their true technical strengths, gauge their real-world readiness for target careers, prioritize what to learn next, and practice role-specific technical interviews. Standard learning roadmaps are generic, static, and disconnected from demonstrated project experience.
 
-**Hyper-Personalized AI Career Co-Pilot** is an end-to-end career intelligence and validation platform built by **Team Technova001 from Kanpur Institute of Technology**. It ingests student resumes, public GitHub repositories, and academic project histories, extracts concrete code evidence, benchmarks abilities against curated industry competencies, prioritizes skill gaps deterministically, generates an actionable 5-stage personalized roadmap, and runs adaptive technical mock interviews with instant feedback.
+**Hyper-Personalized AI Career Co-Pilot** is an end-to-end career intelligence and validation platform built by **Team Technovoo1**. It ingests student resumes, public GitHub repositories, and project histories, extracts concrete code evidence, benchmarks abilities against curated industry competencies, prioritizes skill gaps deterministically, generates an actionable 5-stage personalized roadmap, and runs adaptive technical mock interviews with instant feedback.
 
 ---
 
@@ -87,7 +87,7 @@ A defining tenet of this system is that **no self-reported skill is ever treated
 
 9. **One-Click Hackathon Demo Scenario:**
    - Pinned top banner with one-click **"Reset Demo Scenario"** button.
-   - Seeds realistic Kanpur Institute of Technology student data (Aarav Sharma, B.Tech CSE) with sample resume, GitHub repositories, Docker gaps, and mock interview reports for seamless evaluation.
+   - Seeds realistic student data with sample resume, GitHub repositories, Docker gaps, and mock interview reports for seamless evaluation.
 
 ---
 
@@ -98,7 +98,7 @@ A defining tenet of this system is that **no self-reported skill is ever treated
 | **Frontend** | React 18, Vite 6, Tailwind CSS, React Router v6, Recharts, Lucide React, Canvas Confetti |
 | **Backend** | Node.js (v20+), Express.js 4.21, CORS, Express Rate Limit, Multer |
 | **Database** | MongoDB with Mongoose ODM + Dual-Mode In-Memory Resilience Adapter |
-| **AI Integration** | Google Gemini 1.5 Flash API / OpenAI GPT-4o-mini with deterministic rule-based fallback |
+| **AI Integration** | Google Gemini 2.5 Flash API / OpenAI GPT-4o-mini with deterministic rule-based fallback |
 | **Document Parsing**| `pdf-parse` (PDF text extraction), `mammoth` (DOCX extraction) |
 | **Code Intelligence**| GitHub REST API v3 (Public repository metadata, language breakdown) |
 | **Security** | JWT Authentication, Bcrypt password hashing, rate limiting, input sanitization |
@@ -108,7 +108,7 @@ A defining tenet of this system is that **no self-reported skill is ever treated
 ## 📂 Project Structure
 
 ```
-Technova001/
+Technovoo1/
 ├── server/
 │   ├── config/
 │   │   ├── db.js                 # Resilient dual-mode MongoDB / in-memory store
@@ -125,7 +125,7 @@ Technova001/
 │   │   ├── readinessController.js# 6-dimension readiness engine
 │   │   └── demoController.js     # One-click hackathon demo seed & reset
 │   ├── data/
-│   │   └── demoSeedData.js       # Pre-seeded KIT student demo dataset
+│   │   └── demoSeedData.js       # Pre-seeded benchmark student demo dataset
 │   ├── middleware/
 │   │   ├── auth.js               # JWT bearer token verification
 │   │   ├── upload.js             # Multer with file type & size security
@@ -175,17 +175,17 @@ Technova001/
 
 ### 1. Clone & Setup
 ```bash
-cd "Technova001"
+cd "hyper-personalized-ai-career-copilot"
 ```
 
 ### 2. Configure Environment (Optional)
-The server works out-of-the-box in Hackathon Safe Mode without any required API keys. To connect live LLM providers, edit `server/.env`:
+The server works out-of-the-box or with live APIs. To connect live LLM providers and GitHub, edit `server/.env`:
 ```env
 PORT=5000
-MONGODB_URI=mongodb://127.0.0.1:27017/technova_career_copilot
-JWT_SECRET=technova001_super_secure_jwt_secret_key_kit_hackathon_2026
+MONGODB_URI=mongodb://127.0.0.1:27017/technovoo_career_copilot
+JWT_SECRET=technovoo1_super_secure_jwt_secret_key_2026
 GEMINI_API_KEY=your_gemini_api_key_here
-GITHUB_TOKEN=your_optional_github_personal_token
+GITHUB_TOKEN=your_github_personal_token
 ```
 
 ### 3. Run the Full Application
@@ -219,15 +219,15 @@ Follow this step-by-step workflow during the evaluation:
 1. **Launch the Application:** Open `http://localhost:5000` (or `http://localhost:5173`).
 2. **Access Demo Profile:** Click **"Launch Live Hackathon Demo"** on the landing page (or click **"Sign In as Demo Student"** on the login page).
 3. **Overview Dashboard:**
-   - Observe candidate **Aarav Sharma** (Kanpur Institute of Technology, B.Tech CSE).
+   - Observe candidate **Student Profile** (B.Tech CSE).
    - Review Target Role: **Full-Stack Developer**.
    - Note the verified vs. claimed skills and top 5 prioritized skill gaps (Docker, Automated Testing, System Design).
 4. **Resume Analyzer (`/app/resume`):**
-   - Click **"Load Sample KIT Resume"** to simulate document parsing.
+   - Upload any real PDF/DOCX resume for live AI extraction or click **"Load Sample Resume"**.
    - Inspect extracted sentence-level evidence quotes and resume critique.
    - Click **"Confirm & Save Extracted Evidence"**.
 5. **GitHub Intelligence (`/app/github`):**
-   - View public repositories scanned for `aarav-kit-dev`.
+   - View public repositories scanned for `premjeetcsesr` or any public GitHub profile.
    - Inspect observed code signals (testing presence, Docker flags, language frequencies).
    - Click **"Sync Skills to Career Profile"**.
 6. **Skill Gap Analysis (`/app/skills`):**
@@ -264,7 +264,6 @@ Follow this step-by-step workflow during the evaluation:
 
 ## 👥 Team Identity & Acknowledgments
 
-- **Team Name:** Technova001
-- **Institution:** Kanpur Institute of Technology (KIT), Rooma, Kanpur, Uttar Pradesh, India
-- **Hackathon:** College Hackathon 2026
-- **Contact:** technova001@kit.ac.in
+- **Team Name:** Technovoo1
+- **Project:** Hyper-Personalized AI Career Co-Pilot
+- **Core Principle:** Evidence Before Inference

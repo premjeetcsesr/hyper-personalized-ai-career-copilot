@@ -1,7 +1,7 @@
 {
-  "name": "technova001-career-copilot-root",
+  "name": "technovoo1-career-copilot-root",
   "version": "1.0.0",
-  "description": "Hyper-Personalized AI Career Co-Pilot - Team Technova001 (Kanpur Institute of Technology)",
+  "description": "Hyper-Personalized AI Career Co-Pilot - Team Technovoo1",
   "scripts": {
     "install:all": "npm install --prefix server && npm install --prefix client",
     "server": "npm run dev --prefix server",
@@ -9,6 +9,6 @@
     "build": "npm run build --prefix client",
     "start": "npm start --prefix server"
   },
-  "author": "Team Technova001 - Kanpur Institute of Technology",
+  "author": "Team Technovoo1",
   "license": "MIT"
 }

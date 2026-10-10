@@ -73,9 +73,9 @@ export default function ResumeAnalyzerPage() {
     setAnalyzing(true);
     setTimeout(() => {
       setAnalysisResult({
-        candidateName: 'Aarav Sharma',
+        candidateName: 'Candidate Developer',
         education: {
-          institution: 'Kanpur Institute of Technology',
+          institution: 'Institute of Engineering & Technology',
           degree: 'B.Tech in Computer Science and Engineering',
           year: '2026'
         },
@@ -141,7 +141,7 @@ export default function ResumeAnalyzerPage() {
           ],
           strengths: [
             'Clean full-stack web stack alignment for target role',
-            'Strong demonstrated academic project depth at Kanpur Institute of Technology',
+            'Demonstrated hands-on academic project depth',
             'Clear evidence of end-to-end client-server development'
           ],
           improvementSuggestions: [
@@ -210,7 +210,7 @@ export default function ResumeAnalyzerPage() {
             icon={Sparkles}
             className="!text-xs border-blue-300 text-blue-700 hover:bg-blue-50"
           >
-            Load Sample KIT Resume
+            Load Sample Resume
           </Button>
         }
       >

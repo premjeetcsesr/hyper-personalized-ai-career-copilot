@@ -302,7 +302,7 @@ exports.loadDemoData = async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Demo profile for Team Technova001 (Kanpur Institute of Technology) loaded successfully.',
+      message: 'Demo profile for Team Technovoo1 loaded successfully.',
       token,
       user: {
         id: user._id,

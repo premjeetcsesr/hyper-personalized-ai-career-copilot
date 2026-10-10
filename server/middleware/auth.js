@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'technova001_super_secure_jwt_secret_key_kit_hackathon_2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'technovoo1_super_secure_jwt_secret_key_2026';
 
 const authenticate = async (req, res, next) => {
   try {

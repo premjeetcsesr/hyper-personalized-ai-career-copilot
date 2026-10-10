@@ -1,7 +1,7 @@
 {
-  "name": "technova-career-copilot-server",
+  "name": "technovoo-career-copilot-server",
   "version": "1.0.0",
-  "description": "Backend API for Hyper-Personalized AI Career Co-Pilot by Team Technova001",
+  "description": "Backend API for Hyper-Personalized AI Career Co-Pilot by Team Technovoo1",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -24,10 +24,8 @@
     "ai",
     "career",
     "copilot",
-    "hackathon",
-    "technova001",
-    "kit"
+    "technovoo1"
   ],
-  "author": "Team Technova001 - Kanpur Institute of Technology",
+  "author": "Team Technovoo1",
   "license": "MIT"
 }

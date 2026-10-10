@@ -57,7 +57,7 @@ export default function ProfilePage() {
     if (profile) {
       setForm({
         fullName: profile.fullName || user?.name || '',
-        college: profile.college || 'Kanpur Institute of Technology',
+        college: profile.college || '',
         degree: profile.degree || 'B.Tech',
         branch: profile.branch || 'Computer Science and Engineering',
         graduationYear: profile.graduationYear || 2026,
@@ -146,7 +146,7 @@ export default function ProfilePage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         {/* Academic Credentials Card */}
-        <Card title="Academic Identity" subtitle="Institution and enrollment records at Kanpur Institute of Technology">
+        <Card title="Academic Identity" subtitle="Institution and academic enrollment records">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
@@ -251,7 +251,7 @@ export default function ProfilePage() {
                   type="text"
                   value={form.githubUsername}
                   onChange={(e) => setForm({ ...form, githubUsername: e.target.value })}
-                  placeholder="e.g. aarav-kit-dev"
+                  placeholder="e.g. premjeetcsesr or octocat"
                   className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 />
               </div>

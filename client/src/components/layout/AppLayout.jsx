@@ -26,8 +26,7 @@ export default function AppLayout() {
 
           <footer className="py-4 px-6 border-t border-slate-200/80 text-center text-xs text-slate-500 bg-white/50">
             <span>Hyper-Personalized AI Career Co-Pilot • Developed by </span>
-            <span className="font-semibold text-slate-700">Team Technova001</span>
-            <span> • Kanpur Institute of Technology (KIT)</span>
+            <span className="font-semibold text-slate-700">Team Technovoo1</span>
           </footer>
         </div>
       </div>
