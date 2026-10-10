@@ -40,3 +40,10 @@ Thumbs.db
 
 # Vercel deployment cache
 .vercel
+node_modules/
+client/node_modules/
+server/node_modules/
+client/dist/
+server/.env
+client/.env
+.env
