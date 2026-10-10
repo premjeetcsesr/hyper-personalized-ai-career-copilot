@@ -1,8 +1,20 @@
 import axios from 'axios';
 
+// Dynamically resolve backend API base URL
+// On Vercel: set VITE_API_URL=https://<your-render-service>.onrender.com in Vercel Project Settings
+// In local dev: leave unset to use Vite's built-in /api proxy
+const getBaseURL = () => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (!envUrl || typeof envUrl !== 'string' || !envUrl.trim()) {
+    return '/api';
+  }
+  const cleanUrl = envUrl.trim().replace(/\/+$/, '');
+  return cleanUrl.endsWith('/api') ? cleanUrl : `${cleanUrl}/api`;
+};
+
 const api = axios.create({
-  baseURL: '/api',
-  timeout: 30000,
+  baseURL: getBaseURL(),
+  timeout: 60000, // 60s to accommodate potential Render free tier spin-up latency
 });
 
 api.interceptors.request.use(
