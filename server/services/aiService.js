@@ -19,7 +19,7 @@ async function callLLM({ prompt, systemPrompt = '', responseSchema = null }) {
   const openaiKey = process.env.OPENAI_API_KEY;
 
   if (geminiKey) {
-    const geminiModels = ['gemini-2.5-flash', 'gemini-flash-latest', 'gemini-2.5-pro'];
+    const geminiModels = ['gemini-2.5-flash', 'gemini-3.1-pro-preview', 'gemini-flash-latest'];
     for (const model of geminiModels) {
       try {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`;
@@ -39,7 +39,7 @@ async function callLLM({ prompt, systemPrompt = '', responseSchema = null }) {
           }
         };
 
-        const res = await axios.post(url, payload, { timeout: 15000 });
+        const res = await axios.post(url, payload, { timeout: 8000 });
         const text = res.data?.candidates?.[0]?.content?.parts?.[0]?.text;
         if (text) {
           const cleaned = cleanJsonString(text);
@@ -524,6 +524,6 @@ module.exports = {
   getApiKeyStatus: () => ({
     hasGeminiKey: !!process.env.GEMINI_API_KEY,
     hasOpenAIKey: !!process.env.OPENAI_API_KEY,
-    activeEngine: process.env.GEMINI_API_KEY ? 'Google Gemini 2.5 Flash (Live AI)' : (process.env.OPENAI_API_KEY ? 'OpenAI GPT-4o-mini (Live AI)' : 'Deterministic Semantic Engine')
+    activeEngine: process.env.GEMINI_API_KEY ? 'Google Gemini 1.5/2.0 Flash (Live AI)' : (process.env.OPENAI_API_KEY ? 'OpenAI GPT-4o-mini (Live AI)' : 'Deterministic Semantic Engine')
   })
 };

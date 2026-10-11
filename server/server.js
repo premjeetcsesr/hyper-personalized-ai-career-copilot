@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const rateLimit = require('express-rate-limit');
 
 // Load environment variables
+dotenv.config({ path: path.resolve(__dirname, '.env') });
 dotenv.config();
 
 const { connectDB } = require('./config/db');
@@ -157,6 +158,25 @@ app.use(errorHandler);
 // Initialize DB and Start Server
 async function startServer() {
   await connectDB();
+
+  // Auto-seed canonical learner profile for instant hackathon evaluation
+  try {
+    const { getDemoSeedData } = require('./data/demoSeedData');
+    const { User, Profile, SkillEvidence } = require('./models');
+    const existing = await User.findOne({ email: 'aarav.sharma@example.edu' });
+    if (!existing) {
+      const seed = await getDemoSeedData();
+      const user = await User.create(seed.user);
+      await Profile.create({ userId: user._id, ...seed.profile });
+      for (const s of seed.skillEvidences) {
+        await SkillEvidence.create({ userId: user._id, ...s });
+      }
+      console.log(`[Database] Pre-seeded canonical learner profile: Aarav Sharma (${user.email})`);
+    }
+  } catch (seedErr) {
+    console.warn('[Database] Seed initialization notice:', seedErr.message);
+  }
+
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`=======================================================`);
     console.log(`🚀 Technovoo1 AI Career Co-Pilot API Server`);

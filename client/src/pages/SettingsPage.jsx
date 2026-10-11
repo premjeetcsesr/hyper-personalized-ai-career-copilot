@@ -1,186 +1,363 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Settings,
-  Shield,
-  Cpu,
-  Database,
+  User,
+  Globe,
+  Eye,
   Download,
-  Trash2,
-  RefreshCw,
-  CheckCircle,
+  CheckCircle2,
   AlertCircle,
-  GraduationCap
+  X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { demoAPI } from '../services/api';
-import Card from '../components/common/Card';
+import { useCareerData, CAREER_CATALOGUE } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
+import './SettingsPage.css';
 
 export default function SettingsPage() {
-  const { user, profile, isDemoMode, loadDemoAccount } = useAuth();
-  const [health, setHealth] = useState(null);
-  const [loadingHealth, setLoadingHealth] = useState(false);
-  const [reloadingDemo, setReloadingDemo] = useState(false);
-  const [notice, setNotice] = useState('');
+  const { profile, skills, roadmap, projects, interviewSessions, settings, updateProfile, setTargetRole, updateSettings, resetDemoData } = useCareerData();
 
-  useEffect(() => {
-    checkHealth();
-  }, []);
+  // Profile Form
+  const [fullName, setFullName] = useState(profile.fullName);
+  const [currentStage, setCurrentStage] = useState(profile.currentStage);
+  const [weeklyHours, setWeeklyHours] = useState(profile.weeklyLearningHours);
+  const [selectedRole, setSelectedRole] = useState(profile.targetRole);
+  const [goalText, setGoalText] = useState(profile.goals);
 
-  const checkHealth = async () => {
-    setLoadingHealth(true);
-    try {
-      const res = await demoAPI.getHealth();
-      setHealth(res.data);
-    } catch (err) {
-      console.error('Failed to load health:', err);
-    } finally {
-      setLoadingHealth(false);
+  // Settings State
+  const [language, setLanguage] = useState(settings.language || 'en');
+  const [reducedMotion, setReducedMotion] = useState(settings.reducedMotion || false);
+  const [highContrast, setHighContrast] = useState(settings.highContrast || false);
+  const [textSize, setTextSize] = useState(settings.textSize || 'normal');
+
+  // Confirmation Modal
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [notification, setNotification] = useState(null);
+
+  const handleSaveProfileSettings = (e) => {
+    e.preventDefault();
+    updateProfile({
+      fullName,
+      currentStage,
+      weeklyLearningHours: Number(weeklyHours),
+      goals: goalText,
+      targetRole: selectedRole
+    });
+
+    if (selectedRole !== profile.targetRole) {
+      setTargetRole(selectedRole);
     }
+
+    updateSettings({
+      language,
+      reducedMotion,
+      highContrast,
+      textSize
+    });
+
+    setNotification('Settings and preferences saved successfully.');
+    setTimeout(() => setNotification(null), 4000);
   };
 
-  const handleReloadDemo = async () => {
-    setReloadingDemo(true);
-    try {
-      await loadDemoAccount();
-      setNotice('Official Technovoo1 Hackathon Demo Scenario reloaded successfully!');
-      setTimeout(() => setNotice(''), 4000);
-      window.location.reload();
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setReloadingDemo(false);
-    }
+  const handleConfirmReset = () => {
+    resetDemoData();
+    setIsResetConfirmOpen(false);
+    setNotification('Demo profile restored to default initial state for Aarav Sharma.');
+    setTimeout(() => setNotification(null), 4000);
   };
 
   const handleExportData = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(
-      JSON.stringify({ user, profile, exportDate: new Date(), project: 'Hyper-Personalized AI Career Co-Pilot' }, null, 2)
-    );
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `career_copilot_profile_${user?.name || 'student'}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    const exportPayload = {
+      exportDate: new Date().toISOString(),
+      platform: 'AI Career Co-Pilot',
+      profile,
+      skills,
+      roadmap,
+      projects,
+      interviewSessions
+    };
+
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(exportPayload, null, 2));
+    const dl = document.createElement('a');
+    dl.setAttribute('href', dataStr);
+    dl.setAttribute('download', `career_copilot_${profile.fullName.toLowerCase().replace(/\s+/g, '_')}_data.json`);
+    document.body.appendChild(dl);
+    dl.click();
+    dl.remove();
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">System & Account Settings</h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Manage system integrations, diagnostic telemetry, and data privacy controls.
-        </p>
-      </div>
-
-      {notice && (
-        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2 font-medium">
-          <CheckCircle className="w-4 h-4 text-emerald-600" />
-          <span>{notice}</span>
+    <div className="settings-page">
+      {/* Toast Notification */}
+      {notification && (
+        <div style={{ padding: '0.875rem 1rem', borderRadius: 'var(--radius-lg)', backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#065f46', fontSize: 'var(--font-size-xs)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: 'var(--shadow-sm)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <CheckCircle2 style={{ width: '1rem', height: '1rem', color: '#059669', flexShrink: 0 }} />
+            <span>{notification}</span>
+          </div>
+          <button onClick={() => setNotification(null)} style={{ background: 'none', border: 'none', color: '#059669', cursor: 'pointer', padding: '0.25rem' }}>
+            <X style={{ width: '0.875rem', height: '0.875rem' }} />
+          </button>
         </div>
       )}
 
-      {/* Diagnostics / System Health */}
-      <Card title="System Diagnostics & AI Pipeline Telemetry" subtitle="Verified live connection status for hackathon evaluation">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Server API</span>
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-xs font-bold text-slate-900">{health?.status || 'ONLINE'}</span>
-            </div>
-            <span className="text-[10px] text-slate-500 block mt-1">Node/Express 4.21+</span>
+      {/* Header */}
+      <div className="settings-page__header">
+        <div className="settings-page__badge">
+          <Settings style={{ width: '0.875rem', height: '0.875rem', color: 'var(--color-brand-blue)' }} />
+          <span>Platform Preferences & Controls</span>
+        </div>
+        <h1 className="settings-page__title">
+          Settings & Profile Controls
+        </h1>
+        <p className="settings-page__subtitle">
+          Customize your learner details, target career goal, language preferences, accessibility display modes, or reset the prototype demo state. Every control here is functional.
+        </p>
+      </div>
+
+      <form onSubmit={handleSaveProfileSettings} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        {/* 1. Profile & Career Goal Editing */}
+        <div className="settings-page__section-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem' }}>
+            <User style={{ width: '1.25rem', height: '1.25rem', color: 'var(--color-brand-blue)' }} />
+            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Learner Profile & Career Target</h2>
           </div>
 
-          <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Database Mode</span>
-            <div className="flex items-center gap-2">
-              <Database className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-xs font-bold text-slate-900 truncate">
-                {health?.database?.mode || 'Dual-Mode Persistence'}
-              </span>
+          <div className="settings-page__grid-2">
+            <div>
+              <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Full Name</label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="settings-page__input"
+                required
+              />
             </div>
-            <span className="text-[10px] text-slate-500 block mt-1">Resilient Mongo Adapter</span>
-          </div>
 
-          <div className="p-3.5 rounded-xl border border-slate-200 bg-slate-50">
-            <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">AI Pipeline</span>
-            <div className="flex items-center gap-2">
-              <Cpu className="w-3.5 h-3.5 text-indigo-600" />
-              <span className="text-xs font-bold text-slate-900 truncate">
-                {health?.ai?.activeEngine || 'AI Evidence Engine'}
-              </span>
+            <div>
+              <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Target Career Goal</label>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="settings-page__input"
+              >
+                {CAREER_CATALOGUE.map(c => (
+                  <option key={c.id} value={c.title}>{c.title} ({c.category})</option>
+                ))}
+              </select>
             </div>
-            <span className="text-[10px] text-slate-500 block mt-1">JSON Schema Validation</span>
+
+            <div>
+              <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Current Education / Stage</label>
+              <input
+                type="text"
+                value={currentStage}
+                onChange={(e) => setCurrentStage(e.target.value)}
+                className="settings-page__input"
+              />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Weekly Learning Hours Commitment</label>
+              <input
+                type="number"
+                min="1"
+                max="60"
+                value={weeklyHours}
+                onChange={(e) => setWeeklyHours(e.target.value)}
+                className="settings-page__input"
+              />
+            </div>
+
+            <div style={{ gridColumn: '1 / -1' }}>
+              <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Primary Goal Statement</label>
+              <textarea
+                rows={2}
+                value={goalText}
+                onChange={(e) => setGoalText(e.target.value)}
+                className="settings-page__input"
+              />
+            </div>
           </div>
         </div>
-      </Card>
 
-      {/* Hackathon Demo Controls */}
-      <Card
-        title="Hackathon Demo Sandbox Controls"
-        subtitle="Quick actions designed for judges and evaluators"
-      >
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-blue-50/70 border border-blue-200 gap-3">
-            <div>
-              <span className="text-xs font-bold text-blue-900 block">
-                Reset to Pristine Hackathon Demo Scenario
-              </span>
-              <p className="text-[11px] text-slate-600 mt-0.5">
-                Restores sample student dataset, sample resume, GitHub repositories, Docker gaps, and mock interview reports.
+        {/* 2. Language Preference */}
+        <div className="settings-page__section-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem' }}>
+            <Globe style={{ width: '1.25rem', height: '1.25rem', color: '#6366f1' }} />
+            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Language Preference</h2>
+          </div>
+
+          <div style={{ fontSize: 'var(--font-size-xs)', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600 }}>User Interface Language</label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <label
+                className={`settings-page__radio-card ${language === 'en' ? 'settings-page__radio-card--active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="lang"
+                  checked={language === 'en'}
+                  onChange={() => setLanguage('en')}
+                />
+                <span>English (US / Global Standard)</span>
+              </label>
+
+              <label
+                className={`settings-page__radio-card ${language === 'hi' ? 'settings-page__radio-card--active' : ''}`}
+              >
+                <input
+                  type="radio"
+                  name="lang"
+                  checked={language === 'hi'}
+                  onChange={() => setLanguage('hi')}
+                />
+                <span>Hindi (हिंदी UI Labels Preview)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. Accessibility & Display Settings */}
+        <div className="settings-page__section-card">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem' }}>
+            <Eye style={{ width: '1.25rem', height: '1.25rem', color: '#059669' }} />
+            <h2 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Accessibility & Display Settings</h2>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: 'var(--font-size-xs)' }}>
+            <label className="settings-page__switch-row">
+              <div>
+                <strong style={{ color: 'var(--color-text-primary)', display: 'block' }}>Reduced Motion</strong>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>Minimize micro-animations and transitions (prefers-reduced-motion)</span>
+              </div>
+              <input
+                type="checkbox"
+                checked={reducedMotion}
+                onChange={(e) => setReducedMotion(e.target.checked)}
+                style={{ width: '1rem', height: '1rem' }}
+              />
+            </label>
+
+            <label className="settings-page__switch-row">
+              <div>
+                <strong style={{ color: 'var(--color-text-primary)', display: 'block' }}>Enhanced High Contrast Mode</strong>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>Strengthen border definitions and contrast ratios for maximum readability</span>
+              </div>
+              <input
+                type="checkbox"
+                checked={highContrast}
+                onChange={(e) => setHighContrast(e.target.checked)}
+                style={{ width: '1rem', height: '1rem' }}
+              />
+            </label>
+
+            <div className="settings-page__switch-row">
+              <div>
+                <strong style={{ color: 'var(--color-text-primary)', display: 'block' }}>Text Sizing</strong>
+                <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>Adjust standard interface font size</span>
+              </div>
+              <select
+                value={textSize}
+                onChange={(e) => setTextSize(e.target.value)}
+                style={{ padding: '0.375rem 0.625rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', fontSize: 'var(--font-size-xs)', backgroundColor: 'var(--color-surface)' }}
+              >
+                <option value="normal">Standard (Default)</option>
+                <option value="large">Large (+15% Scaling)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Save Button */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Button type="submit" variant="primary" size="md">
+            Save All Preferences
+          </Button>
+        </div>
+      </form>
+
+      {/* 4. Data Export & Demo Reset Section */}
+      <div className="settings-page__section-card" style={{ paddingTop: '1.5rem' }}>
+        <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem', margin: 0 }}>
+          Data Management & Demo Reset
+        </h3>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '1rem', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--color-slate-50)', border: '1px solid var(--color-border)', fontSize: 'var(--font-size-xs)' }}>
+          <div>
+            <strong style={{ color: 'var(--color-text-primary)', display: 'block' }}>Export Career Twin Data</strong>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>Download your verified skill evidences, project submissions, and interview reports as JSON.</span>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleExportData}
+            icon={Download}
+          >
+            Export JSON
+          </Button>
+        </div>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid #fecdd3', backgroundColor: 'rgba(255, 241, 242, 0.4)', fontSize: 'var(--font-size-xs)' }}>
+          <div>
+            <strong style={{ color: '#881337', display: 'block' }}>Reset Demo State</strong>
+            <span style={{ color: '#be123c', fontSize: '11px' }}>Restores default sample learner Aarav Sharma with initial evidentiary states.</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsResetConfirmOpen(true)}
+            style={{ padding: '0.5rem 0.875rem', borderRadius: 'var(--radius-md)', fontSize: 'var(--font-size-xs)', fontWeight: 700, backgroundColor: '#e11d48', color: '#ffffff', border: 'none', cursor: 'pointer' }}
+          >
+            Reset Demo Data...
+          </button>
+        </div>
+      </div>
+
+      {/* Reset Confirmation Modal */}
+      {isResetConfirmOpen && (
+        <div className="settings-page__dialog-overlay" onClick={() => setIsResetConfirmOpen(false)}>
+          <div className="settings-page__dialog" onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#e11d48' }}>
+              <div style={{ width: '2.5rem', height: '2.5rem', borderRadius: 'var(--radius-lg)', backgroundColor: '#fff1f2', border: '1px solid #fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <AlertCircle style={{ width: '1.25rem', height: '1.25rem', color: '#e11d48' }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Confirm Reset of Demo Data</h3>
+                <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Restore default initial state</span>
+              </div>
+            </div>
+
+            <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.5rem', lineHeight: 1.6 }}>
+              <p style={{ margin: 0 }}>
+                <strong style={{ color: 'var(--color-text-primary)' }}>This action will remove:</strong>
+              </p>
+              <ul style={{ listStyle: 'disc', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', margin: 0 }}>
+                <li>Any custom skills added during your session</li>
+                <li>Submitted project lab deliverables and rubric scores</li>
+                <li>Completed mock interview evaluations</li>
+                <li>Changes made to profile goals or target career</li>
+              </ul>
+              <p style={{ paddingTop: '0.25rem', color: 'var(--color-text-primary)', fontWeight: 500, margin: 0 }}>
+                The platform will return to Aarav Sharma's default state: Target role Full-Stack Developer, HTML & CSS demonstrated, JavaScript probable, and REST APIs claimed.
               </p>
             </div>
 
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleReloadDemo}
-              loading={reloadingDemo}
-              icon={RefreshCw}
-            >
-              Reset Demo Scenario
-            </Button>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-200 gap-3">
-            <div>
-              <span className="text-xs font-bold text-slate-900 block">
-                Export Career Profile Data
-              </span>
-              <p className="text-[11px] text-slate-500 mt-0.5">
-                Download a clean, structured JSON snapshot of your verified competencies and learning roadmap.
-              </p>
+            <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--color-slate-100)', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
+              <Button size="xs" variant="outline" onClick={() => setIsResetConfirmOpen(false)}>
+                Cancel
+              </Button>
+              <button
+                type="button"
+                onClick={handleConfirmReset}
+                style={{ padding: '0.375rem 0.875rem', borderRadius: 'var(--radius-md)', fontSize: 'var(--font-size-xs)', fontWeight: 700, backgroundColor: '#e11d48', color: '#ffffff', border: 'none', cursor: 'pointer' }}
+              >
+                Yes, Reset Everything
+              </button>
             </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportData}
-              icon={Download}
-            >
-              Export JSON
-            </Button>
           </div>
         </div>
-      </Card>
-
-      {/* Institution Credits */}
-      <Card title="Project Credits & Team Identity" subtitle="Developed for College Hackathon 2026">
-        <div className="space-y-2 text-xs text-slate-600 leading-relaxed">
-          <p>
-            <strong>Project:</strong> Hyper-Personalized AI Career Co-Pilot
-          </p>
-          <p>
-            <strong>Team Name:</strong> Technovoo1
-          </p>
-          <p>
-            <strong>Guiding Principle:</strong> Evidence Before Inference
-          </p>
-        </div>
-      </Card>
+      )}
     </div>
   );
 }

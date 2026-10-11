@@ -8,6 +8,7 @@ import {
   Radar,
   Tooltip
 } from 'recharts';
+import './Charts.css';
 
 export default function ReadinessRadarChart({ dimensions = {} }) {
   const data = [
@@ -20,7 +21,7 @@ export default function ReadinessRadarChart({ dimensions = {} }) {
   ];
 
   return (
-    <div className="w-full h-72">
+    <div className="chart-container-radar">
       <ResponsiveContainer width="100%" height="100%">
         <RadarChart cx="50%" cy="50%" outerRadius="75%" data={data}>
           <PolarGrid stroke="#E2E8F0" />
@@ -36,7 +37,7 @@ export default function ReadinessRadarChart({ dimensions = {} }) {
           <Radar
             name="Readiness Score"
             dataKey="score"
-            stroke="#2563EB"
+            stroke="#2454E8"
             fill="#3B82F6"
             fillOpacity={0.35}
           />
@@ -45,9 +46,9 @@ export default function ReadinessRadarChart({ dimensions = {} }) {
               if (active && payload && payload.length) {
                 const item = payload[0].payload;
                 return (
-                  <div className="bg-slate-900 text-white p-2.5 rounded-lg shadow-md text-xs border border-slate-700">
-                    <p className="font-semibold text-blue-400">{item.subject}</p>
-                    <p className="text-slate-200">Score: <span className="font-bold text-white">{item.score}%</span></p>
+                  <div className="chart-tooltip">
+                    <p className="chart-tooltip__title">{item.subject}</p>
+                    <p style={{ color: '#E2E8F0' }}>Score: <strong style={{ color: '#FFFFFF' }}>{item.score}%</strong></p>
                   </div>
                 );
               }

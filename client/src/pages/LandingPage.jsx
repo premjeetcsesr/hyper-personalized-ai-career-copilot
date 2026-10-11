@@ -1,60 +1,71 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
+  Compass,
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
-  FileText,
-  Github,
-  Compass,
+  Milestone,
   Target,
-  BarChart3,
-  GraduationCap,
-  Award,
+  Sparkles,
   Layers,
-  ChevronRight
+  ChevronRight,
+  HelpCircle,
+  FileCheck,
+  Search,
+  BookOpen,
+  Briefcase
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useCareerData } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
+import './LandingPage.css';
 
 export default function LandingPage() {
-  const { isAuthenticated, loadDemoAccount } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
-  const handleLaunchDemo = async () => {
-    await loadDemoAccount();
-    navigate('/app');
+  const handleStartJourney = () => {
+    navigate('/onboarding');
+  };
+
+  const handleExploreCareers = () => {
+    navigate('/app/explore');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
-      {/* Top Banner */}
-      <div className="bg-[#102A43] text-white text-xs py-2 px-4 text-center border-b border-slate-700 flex items-center justify-center gap-2">
-        <span className="bg-blue-500/20 text-blue-300 border border-blue-400/30 px-2 py-0.5 rounded text-[11px] font-semibold">
-          HACKATHON SHOWCASE
+    <div className="landing-page">
+      {/* Top Prototype Transparency Notice */}
+      <div className="landing-page__top-notice">
+        <span className="landing-page__notice-tag">
+          PROTOTYPE WORKSPACE
         </span>
-        <span>Team Technovoo1 • AI Career Co-Pilot</span>
+        <span>Evidence-Based Career Intelligence • Grounded in empirical code artifacts and transparent rubrics</span>
       </div>
 
       {/* Navigation */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/80 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20 font-bold text-lg">
-              🧭
+      <header className="landing-page__header">
+        <div className="landing-page__header-inner">
+          <div className="landing-page__brand">
+            <div className="landing-page__logo">
+              <img src="/app-icon.svg" alt="AI Career Co-Pilot" className="landing-page__logo-img" />
             </div>
             <div>
-              <span className="font-bold text-slate-900 text-base tracking-tight block leading-tight">
+              <span className="landing-page__brand-text">
                 AI Career Co-Pilot
               </span>
-              <span className="text-[10px] text-blue-600 font-semibold uppercase tracking-wider block">
+              <span className="landing-page__brand-sub">
                 Evidence Before Inference
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="landing-page__header-actions">
+            <Link to="/app/explore">
+              <Button variant="ghost" size="sm">
+                Explore Careers
+              </Button>
+            </Link>
             {isAuthenticated ? (
               <Button
                 variant="primary"
@@ -66,24 +77,19 @@ export default function LandingPage() {
               </Button>
             ) : (
               <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleLaunchDemo}
-                  icon={Sparkles}
-                >
-                  Quick Demo
-                </Button>
                 <Link to="/login">
                   <Button variant="ghost" size="sm">
                     Sign In
                   </Button>
                 </Link>
-                <Link to="/register">
-                  <Button variant="navy" size="sm">
-                    Get Started
-                  </Button>
-                </Link>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={handleStartJourney}
+                  icon={ArrowRight}
+                >
+                  Start My Career Journey
+                </Button>
               </>
             )}
           </div>
@@ -91,214 +97,322 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden pt-12 pb-20 lg:pt-20 lg:pb-28 bg-gradient-to-b from-white via-slate-50 to-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-semibold mb-6 shadow-xs">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-            <span>Hyper-Personalized AI Career Intelligence</span>
+      <section className="landing-page__hero">
+        <div className="landing-page__hero-inner">
+          <div className="landing-page__hero-pill">
+            <ShieldCheck style={{ width: 16, height: 16, color: 'var(--color-brand-blue)' }} />
+            <span>Evidence-Based Career Intelligence</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight max-w-4xl mx-auto leading-tight sm:leading-tight">
-            Stop Guessing Your Career Readiness. <br />
-            <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Prove It With Evidence.
+          <h1 className="landing-page__hero-title">
+            Build skills. Prove your abilities. <br className="hidden sm:inline" />
+            <span className="landing-page__hero-highlight">
+              Move toward your career.
             </span>
           </h1>
 
-          <p className="mt-6 text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            Generic roadmaps don’t cut it. Our AI extracts verifiable skill evidence from your resumes and GitHub code, compares your abilities with target industry benchmarks, prioritizes gaps, and trains you with adaptive mock interviews.
+          <p className="landing-page__hero-desc">
+            Discover career paths, understand your skill gaps, practise real-world projects, and prepare for interviews through one evidence-based career development workspace.
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <div className="landing-page__hero-buttons">
             <Button
               size="lg"
               variant="primary"
-              onClick={handleLaunchDemo}
-              className="shadow-lg shadow-blue-500/25"
-              icon={Sparkles}
+              onClick={handleStartJourney}
+              icon={ArrowRight}
             >
-              Launch Live Hackathon Demo
+              Start My Career Journey
             </Button>
-            <Link to="/register">
-              <Button size="lg" variant="outline" icon={GraduationCap}>
-                Student Registration
-              </Button>
-            </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              onClick={handleExploreCareers}
+              icon={Compass}
+            >
+              Explore Careers
+            </Button>
           </div>
 
-          <div className="mt-8 flex items-center justify-center gap-6 text-xs text-slate-500 font-medium">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              Verified Evidence System
+          <div className="landing-page__hero-badges">
+            <span className="landing-page__hero-badge-item">
+              <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--color-success)' }} />
+              Verified Project Artifacts
             </span>
-            <span className="flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-blue-600" />
-              Adaptive AI Mock Interviewer
+            <span className="landing-page__hero-badge-item">
+              <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--color-brand-blue)' }} />
+              Prioritized Skill Gaps
             </span>
-            <span className="flex items-center gap-1.5">
-              <GraduationCap className="w-4 h-4 text-indigo-600" />
-              Career Readiness Verification
+            <span className="landing-page__hero-badge-item">
+              <CheckCircle2 style={{ width: 16, height: 16, color: '#4F46E5' }} />
+              Adaptive Roadmap
+            </span>
+            <span className="landing-page__hero-badge-item">
+              <CheckCircle2 style={{ width: 16, height: 16, color: '#7C3AED' }} />
+              Transparent Rubric Feedback
             </span>
           </div>
         </div>
       </section>
 
-      {/* Core Principle: Evidence Before Inference */}
-      <section className="py-16 bg-white border-y border-slate-200/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-xs uppercase font-bold tracking-wider text-blue-600 mb-2">
-              Foundational Architecture
+      {/* The 7-Step Core Workflow Explanation */}
+      <section className="landing-page__cycle">
+        <div className="app-container">
+          <div className="landing-page__section-header">
+            <div className="landing-page__section-eyebrow">
+              <Layers style={{ width: 14, height: 14 }} />
+              <span>Connected Product Architecture</span>
+            </div>
+            <h2 className="landing-page__section-title">
+              The 7-Step Evidence Lifecycle
             </h2>
-            <h3 className="text-2xl sm:text-3xl font-bold text-slate-900">
-              Core Principle: Evidence Before Inference
-            </h3>
-            <p className="text-sm text-slate-600 mt-3">
-              We never treat a self-reported claim as a verified competency. Every skill transitions through a four-tier evidentiary verification pipeline.
+            <p className="landing-page__section-desc">
+              Rather than isolated tools, our platform powers a unified cycle: from discovering a career through building code evidence, filling gaps, and practicing interviews.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="p-5 rounded-xl border border-emerald-200 bg-emerald-50/50">
-              <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-xs mb-3">
-                1
+          <div className="landing-page__cycle-grid">
+            {[
+              {
+                step: '1',
+                title: 'Discover',
+                subtitle: 'Possible Career Paths',
+                desc: 'Explore curated career catalogues with real industry competencies and example tasks.'
+              },
+              {
+                step: '2',
+                title: 'Verify',
+                subtitle: 'Existing Evidence',
+                desc: 'Differentiate demonstrated skills from probable and self-reported claims.'
+              },
+              {
+                step: '3',
+                title: 'Compare',
+                subtitle: 'Prioritize Gaps',
+                desc: 'Benchmark your demonstrated level against role targets to isolate missing requirements.'
+              },
+              {
+                step: '4',
+                title: 'Improve',
+                subtitle: 'Practical Roadmap',
+                desc: 'Follow actionable milestones tied to your specific career deficiencies.'
+              },
+              {
+                step: '5',
+                title: 'Demonstrate',
+                subtitle: 'Project Lab Missions',
+                desc: 'Build hands-on guided and challenge deliverables with clear acceptance criteria.'
+              },
+              {
+                step: '6',
+                title: 'Validate',
+                subtitle: 'Interview Arena',
+                desc: 'Practice role-specific questions graded against transparent technical rubrics.'
+              },
+              {
+                step: '7',
+                title: 'Adapt',
+                subtitle: 'Dynamic Evolution',
+                desc: 'As projects and interview sessions complete, your roadmap and gaps update automatically.'
+              }
+            ].map((item) => (
+              <div key={item.step} className="landing-page__cycle-card">
+                <div>
+                  <div className="landing-page__cycle-step-num">
+                    {item.step}
+                  </div>
+                  <h3 className="landing-page__cycle-title">{item.title}</h3>
+                  <span className="landing-page__cycle-sub">{item.subtitle}</span>
+                  <p className="landing-page__cycle-text">{item.desc}</p>
+                </div>
               </div>
-              <h4 className="font-bold text-emerald-900 text-sm">Verified</h4>
-              <p className="text-xs text-emerald-700 mt-1">
-                Demonstrated via completed practical missions, multi-repo code analysis, or passed technical mock interview evaluations (Score ≥ 75%).
-              </p>
-            </div>
-
-            <div className="p-5 rounded-xl border border-blue-200 bg-blue-50/50">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold text-xs mb-3">
-                2
-              </div>
-              <h4 className="font-bold text-blue-900 text-sm">Probable</h4>
-              <p className="text-xs text-blue-700 mt-1">
-                Observed in public GitHub repositories, project dependency manifests, or detailed project case studies with concrete implementation context.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-xl border border-amber-200 bg-amber-50/50">
-              <div className="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center font-bold text-xs mb-3">
-                3
-              </div>
-              <h4 className="font-bold text-amber-900 text-sm">Claimed</h4>
-              <p className="text-xs text-amber-700 mt-1">
-                Self-reported in the student profile or listed in a resume skills section without supporting code or assessment evidence.
-              </p>
-            </div>
-
-            <div className="p-5 rounded-xl border border-slate-200 bg-slate-50">
-              <div className="w-8 h-8 rounded-lg bg-slate-600 text-white flex items-center justify-center font-bold text-xs mb-3">
-                4
-              </div>
-              <h4 className="font-bold text-slate-900 text-sm">Unknown</h4>
-              <p className="text-xs text-slate-600 mt-1">
-                Not yet assessed. Crucially, unknown is never penalized as zero ability—it represents unverified potential ready to be calibrated.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Feature Modules */}
-      <section className="py-16 bg-slate-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">
-              End-to-End Career Intelligence Pipeline
+      {/* Realistic Product Preview Section */}
+      <section className="landing-page__preview">
+        <div className="app-container">
+          <div className="landing-page__section-header">
+            <span className="landing-page__section-eyebrow">
+              Integrated Workspace Preview
+            </span>
+            <h2 className="landing-page__section-title">
+              Realistic Walkthrough with Demo Learner Aarav Sharma
             </h2>
-            <p className="text-xs text-slate-500 mt-2">
-              UNDERSTAND → VERIFY → COMPARE → IMPROVE → VALIDATE → ADAPT
+            <p className="landing-page__section-desc">
+              Sample profile targeting Full-Stack Developer: HTML/CSS verified, JavaScript probable, REST APIs claimed, and databases unassessed.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
-                <FileText className="w-5 h-5" />
+          <div className="landing-page__preview-grid">
+            {/* Preview 1: Skill Evidentiary Status */}
+            <div className="landing-page__preview-card">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border-subtle)', paddingBottom: 'var(--spacing-3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
+                  <ShieldCheck style={{ width: 20, height: 20, color: 'var(--color-brand-blue)' }} />
+                  <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Evidentiary Skill Breakdown</h3>
+                </div>
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: '600', padding: '2px 8px', borderRadius: '4px', backgroundColor: 'var(--color-info-bg)', color: 'var(--color-info-text)' }}>
+                  Target: Full-Stack Developer
+                </span>
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Resume & Project Analyzer</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Parse PDF and DOCX documents with text sanitization. Extract verified skills, project tech stacks, and receive targeted resume improvement suggestions.
+
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+                Skills are never assumed verified based on keywords alone. Every skill is placed into a transparent evidentiary state:
               </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-2-5)' }}>
+                <div style={{ padding: 'var(--spacing-3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-success-border)', backgroundColor: 'var(--color-success-bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', color: 'var(--color-success-text)', display: 'block' }}>HTML & CSS</span>
+                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-success)' }}>Source: Completed Responsive Portfolio project</span>
+                  </div>
+                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', backgroundColor: '#D1FAE5', color: '#065F46' }}>
+                    Demonstrated (85%)
+                  </span>
+                </div>
+
+                <div style={{ padding: 'var(--spacing-3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-probable-border)', backgroundColor: 'var(--color-probable-bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', color: 'var(--color-probable-text)', display: 'block' }}>JavaScript</span>
+                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-brand-blue)' }}>Source: Partial DOM exercises & async scripts</span>
+                  </div>
+                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', backgroundColor: '#DBEAFE', color: '#1E40AF' }}>
+                    Probable (68%)
+                  </span>
+                </div>
+
+                <div style={{ padding: 'var(--spacing-3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-claimed-border)', backgroundColor: 'var(--color-claimed-bg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', color: 'var(--color-claimed-text)', display: 'block' }}>REST APIs</span>
+                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-warning)' }}>Source: Self-reported (No completed API project in profile)</span>
+                  </div>
+                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', backgroundColor: '#FEF3C7', color: '#92400E' }}>
+                    Claimed (40%)
+                  </span>
+                </div>
+
+                <div style={{ padding: 'var(--spacing-3)', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div>
+                    <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', color: 'var(--color-text-primary)', display: 'block' }}>Database Integration</span>
+                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-text-muted)' }}>Source: Not yet assessed</span>
+                  </div>
+                  <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', padding: '4px 8px', borderRadius: '4px', backgroundColor: '#E2E8F0', color: '#475569' }}>
+                    Unknown (25%)
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center mb-4">
-                <Github className="w-5 h-5" />
+            {/* Preview 2: Next Action & Project Mission */}
+            <div className="landing-page__preview-card">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-border-subtle)', paddingBottom: 'var(--spacing-3)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-2)' }}>
+                  <Target style={{ width: 20, height: 20, color: '#4F46E5' }} />
+                  <h3 style={{ fontSize: 'var(--text-sm)', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Prioritized Next Action</h3>
+                </div>
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', padding: '2px 8px', borderRadius: '4px', backgroundColor: '#EEF2FF', color: '#4338CA' }}>
+                  Step 3 of 8
+                </span>
               </div>
-              <h3 className="font-bold text-slate-900 text-base">GitHub Intelligence</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Connect public repositories to detect language frequency, testing practices, Docker usage, and architectural signals—without inferring skill from raw commit counts.
-              </p>
-            </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-4">
-                <Layers className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-base">Skill Gap Engine</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Benchmark against 6 curated roles. Calculate deficiency priorities deterministically and understand exactly why each gap matters in the real market.
-              </p>
-            </div>
+              <div style={{ padding: 'var(--spacing-4)', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--color-surface-subtle)', border: '1px solid var(--color-border)' }}>
+                <span style={{ fontSize: 'var(--text-2xs)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: 'bold', display: 'block', marginBottom: '4px' }}>
+                  Top Recommended Gap
+                </span>
+                <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
+                  Build a small REST API for a Task Manager
+                </h4>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginTop: 'var(--spacing-2)', lineHeight: 'var(--leading-relaxed)' }}>
+                  "Your target role involves backend development, but your current demo profile has limited practical evidence of API design. Complete this exercise to strengthen that evidence."
+                </p>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
-                <Compass className="w-5 h-5" />
+                <div style={{ marginTop: 'var(--spacing-4)', paddingTop: 'var(--spacing-3)', borderTop: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-text-secondary)' }}>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Expected Outcome:</strong> Upgrades REST APIs from Claimed to Demonstrated.
+                  </div>
+                  <Button
+                    size="xs"
+                    variant="primary"
+                    onClick={() => navigate('/app/projects')}
+                    icon={ArrowRight}
+                  >
+                    View Mission
+                  </Button>
+                </div>
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Personalized Roadmap</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Follow the 5-step cycle: LEARN → PRACTICE → BUILD → VALIDATE → IMPROVE. Complete milestones with verified code deliverables.
-              </p>
-            </div>
 
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center mb-4">
-                <Sparkles className="w-5 h-5" />
+              {/* Roadmap Snapshot */}
+              <div>
+                <span style={{ fontSize: 'var(--text-xs)', fontWeight: 'bold', color: 'var(--color-text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: 'var(--spacing-2)' }}>
+                  Adaptive Roadmap Progression
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-1-5)', fontSize: 'var(--text-xs)' }}>
+                  <div style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', color: 'var(--color-success-text)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>1. Strengthen JavaScript Fundamentals</span>
+                    <span style={{ fontWeight: '600' }}>Completed</span>
+                  </div>
+                  <div style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--color-success-bg)', border: '1px solid var(--color-success-border)', color: 'var(--color-success-text)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>2. Build a Responsive Frontend</span>
+                    <span style={{ fontWeight: '600' }}>Completed</span>
+                  </div>
+                  <div style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--color-info-bg)', border: '1px solid var(--color-info-border)', color: 'var(--color-info-text)', fontWeight: '600', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>3. Create a REST API</span>
+                    <span style={{ color: 'var(--color-brand-blue)' }}>In Progress</span>
+                  </div>
+                  <div style={{ padding: 'var(--spacing-2)', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--color-surface-subtle)', border: '1px solid var(--color-border)', color: 'var(--color-text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <span>4. Connect the API to a Database</span>
+                    <span>Upcoming</span>
+                  </div>
+                </div>
               </div>
-              <h3 className="font-bold text-slate-900 text-base">Adaptive AI Mock Interview</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Simulate technical, project, and system design interviews. Receive instant feedback across correctness, reasoning, architecture, and communication.
-              </p>
-            </div>
-
-            <div className="bg-white p-6 rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4">
-                <BarChart3 className="w-5 h-5" />
-              </div>
-              <h3 className="font-bold text-slate-900 text-base">Career Readiness Engine</h3>
-              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-                Multidimensional radar scoring across 6 key pillars. Fully transparent formulas with recommended high-impact next actions.
-              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-[#102A43] text-white">
-        <div className="max-w-5xl mx-auto px-4 text-center">
-          <h2 className="text-3xl font-extrabold tracking-tight">
-            Ready for the Live Hackathon Demonstration?
+      {/* Trust & Simulation Transparency Section */}
+      <section className="landing-page__trust">
+        <div className="landing-page__trust-inner">
+          <div className="landing-page__trust-icon">
+            <HelpCircle style={{ width: 20, height: 20 }} />
+          </div>
+          <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>
+            Trust & Evidence Transparency
           </h2>
-          <p className="mt-4 text-sm text-slate-300 max-w-xl mx-auto">
-            Experience the complete student journey with live AI evidence analysis or start fresh with your own credentials.
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', lineHeight: 'var(--leading-relaxed)', maxWidth: '42rem' }}>
+            We distinguish self-reported claims from demonstrated practical evidence. Course badges, connected profiles, or resume keywords alone are never treated as proof of competence. In this prototype, mock interview assessments and project rubric evaluations run using transparent, deterministic simulation rules rather than untrusted live external agents.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
+
+          <div style={{ paddingTop: 'var(--spacing-4)', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'var(--spacing-4)' }}>
             <Button
-              size="lg"
               variant="primary"
-              onClick={handleLaunchDemo}
-              icon={Sparkles}
+              size="md"
+              onClick={handleStartJourney}
+              icon={ArrowRight}
             >
-              Start One-Click Demo
+              Start My Career Journey
+            </Button>
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => navigate('/app')}
+            >
+              Explore Sample Dashboard
             </Button>
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="landing-page__footer">
+        <div className="landing-page__footer-inner">
+          <p style={{ color: '#E2E8F0', fontWeight: '600' }}>AI Career Co-Pilot • Evidence-Based Career Intelligence</p>
+          <p>Curated competencies, transparent rubrics, and adaptive roadmaps for early-career learners.</p>
+        </div>
+      </footer>
     </div>
   );
 }

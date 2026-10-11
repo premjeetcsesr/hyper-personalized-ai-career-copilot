@@ -1,0 +1,384 @@
+:root {
+  /* Brand Core Tokens */
+  --color-brand-primary: #101C54;
+  --color-brand-blue: #2454E8;
+  --color-brand-blue-hover: #1b44c2;
+  --color-brand-accent: #08BFA8;
+  --color-brand-accent-hover: #06a08d;
+
+  /* Surfaces & Backgrounds */
+  --color-background: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-subtle: #F1F5F9;
+  --color-surface-card: #FFFFFF;
+
+  /* Text Colors */
+  --color-text-primary: #172033;
+  --color-text-secondary: #64748B;
+  --color-text-muted: #94A3B8;
+  --color-text-inverse: #FFFFFF;
+
+  /* Borders */
+  --color-border: #E2E8F0;
+  --color-border-subtle: #F1F5F9;
+  --color-border-strong: #CBD5E1;
+
+  /* Semantic Feedback States */
+  --color-success: #16845B;
+  --color-success-bg: #ECFDF5;
+  --color-success-border: #A7F3D0;
+  --color-success-text: #065F46;
+
+  --color-warning: #B7791F;
+  --color-warning-bg: #FFFBEB;
+  --color-warning-border: #FDE68A;
+  --color-warning-text: #92400E;
+
+  --color-error: #C0394B;
+  --color-error-bg: #FEF2F2;
+  --color-error-border: #FECACA;
+  --color-error-text: #991B1B;
+
+  --color-info: #2454E8;
+  --color-info-bg: #EFF6FF;
+  --color-info-border: #BFDBFE;
+  --color-info-text: #1E40AF;
+
+  /* Evidentiary States Tokens (Principle B) */
+  --color-demonstrated-bg: #ECFDF5;
+  --color-demonstrated-border: #A7F3D0;
+  --color-demonstrated-text: #065F46;
+
+  --color-probable-bg: #EFF6FF;
+  --color-probable-border: #BFDBFE;
+  --color-probable-text: #1E40AF;
+
+  --color-claimed-bg: #FFFBEB;
+  --color-claimed-border: #FDE68A;
+  --color-claimed-text: #92400E;
+
+  --color-unknown-bg: #F1F5F9;
+  --color-unknown-border: #CBD5E1;
+  --color-unknown-text: #475569;
+
+  /* Typography Scale */
+  --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+
+  --text-2xs: 0.6875rem; /* 11px */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  --text-5xl: 3rem;      /* 48px */
+
+  /* Aliases for --font-size-* */
+  --font-size-2xs: 0.6875rem;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --font-extrabold: 800;
+
+  --leading-none: 1;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  /* Spacing Scale */
+  --spacing-0-5: 2px;
+  --spacing-1: 4px;
+  --spacing-1-5: 6px;
+  --spacing-2: 8px;
+  --spacing-2-5: 10px;
+  --spacing-3: 12px;
+  --spacing-3-5: 14px;
+  --spacing-4: 16px;
+  --spacing-5: 20px;
+  --spacing-6: 24px;
+  --spacing-7: 28px;
+  --spacing-8: 32px;
+  --spacing-10: 40px;
+  --spacing-12: 48px;
+  --spacing-16: 64px;
+  --spacing-20: 80px;
+
+  /* Aliases for --space-* */
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-3-5: 14px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Extended Palette Tokens */
+  --color-slate-50: #F8FAFC;
+  --color-slate-100: #F1F5F9;
+  --color-slate-200: #E2E8F0;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1E293B;
+  --color-slate-900: #0F172A;
+
+  --color-blue-50: #EFF6FF;
+  --color-blue-100: #DBEAFE;
+  --color-blue-200: #BFDBFE;
+  --color-blue-300: #93C5FD;
+  --color-blue-400: #60A5FA;
+  --color-blue-500: #3B82F6;
+  --color-blue-600: #2563EB;
+  --color-blue-700: #1D4ED8;
+  --color-blue-800: #1E40AF;
+  --color-blue-900: #1E3A8A;
+
+  --color-emerald-50: #ECFDF5;
+  --color-emerald-100: #D1FAE5;
+  --color-emerald-500: #10B981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+
+  --color-amber-50: #FFFBEB;
+  --color-amber-100: #FEF3C7;
+  --color-amber-200: #FDE68A;
+  --color-amber-600: #D97706;
+  --color-amber-700: #B45309;
+
+  --color-rose-50: #FFF1F2;
+  --color-rose-100: #FFE4E6;
+  --color-rose-500: #F43F5E;
+  --color-rose-600: #E11D48;
+  --color-rose-700: #BE123C;
+
+  --color-indigo-50: #EEF2FF;
+  --color-indigo-100: #E0E7FF;
+  --color-indigo-600: #4F46E5;
+  --color-indigo-700: #4338CA;
+
+  /* Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(16, 28, 84, 0.04);
+  --shadow-sm: 0 1px 3px 0 rgba(16, 28, 84, 0.08), 0 1px 2px -1px rgba(16, 28, 84, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(16, 28, 84, 0.08), 0 2px 4px -2px rgba(16, 28, 84, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(16, 28, 84, 0.08), 0 4px 6px -4px rgba(16, 28, 84, 0.04);
+  --shadow-xl: 0 20px 25px -5px rgba(16, 28, 84, 0.1), 0 8px 10px -6px rgba(16, 28, 84, 0.06);
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Layout Boundaries */
+  --content-max-width: 1280px;
+  --sidebar-width: 260px;
+  --navbar-height: 64px;
+  --mobile-nav-height: 58px;
+
+  /* Z-Index Hierarchy */
+  --z-base: 1;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+}
+
+/* ==========================================================================
+   Responsive Token Scaling by Screen Width
+   Progressively decreases elements, spacing, typography, and card geometry
+   as screen width narrows for optimum user experience across all devices.
+   ========================================================================== */
+
+@media (max-width: 1280px) {
+  :root {
+    --sidebar-width: 236px;
+    --content-max-width: 100%;
+
+    --spacing-6: 20px;
+    --spacing-8: 26px;
+    --spacing-10: 32px;
+    --spacing-12: 38px;
+    --spacing-16: 48px;
+    --spacing-20: 60px;
+
+    --space-6: 20px;
+    --space-8: 26px;
+    --space-10: 32px;
+    --space-12: 38px;
+    --space-16: 48px;
+    --space-20: 60px;
+  }
+}
+
+@media (max-width: 1024px) {
+  :root {
+    --navbar-height: 58px;
+    --sidebar-width: 220px;
+
+    --text-5xl: 2.5rem;
+    --text-4xl: 2rem;
+    --text-3xl: 1.625rem;
+    --text-2xl: 1.35rem;
+    --text-xl: 1.15rem;
+
+    --font-size-5xl: 2.5rem;
+    --font-size-4xl: 2rem;
+    --font-size-3xl: 1.625rem;
+    --font-size-2xl: 1.35rem;
+    --font-size-xl: 1.15rem;
+
+    --spacing-5: 16px;
+    --spacing-6: 18px;
+    --spacing-8: 22px;
+    --spacing-10: 26px;
+    --spacing-12: 32px;
+    --spacing-16: 40px;
+    --spacing-20: 48px;
+
+    --space-5: 16px;
+    --space-6: 18px;
+    --space-8: 22px;
+    --space-10: 26px;
+    --space-12: 32px;
+    --space-16: 40px;
+    --space-20: 48px;
+
+    --radius-xl: 14px;
+    --radius-2xl: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 54px;
+    --mobile-nav-height: 52px;
+
+    --text-5xl: 2rem;
+    --text-4xl: 1.625rem;
+    --text-3xl: 1.375rem;
+    --text-2xl: 1.2rem;
+    --text-xl: 1.05rem;
+    --text-lg: 0.95rem;
+    --text-base: 0.875rem;
+
+    --font-size-5xl: 2rem;
+    --font-size-4xl: 1.625rem;
+    --font-size-3xl: 1.375rem;
+    --font-size-2xl: 1.2rem;
+    --font-size-xl: 1.05rem;
+    --font-size-lg: 0.95rem;
+    --font-size-base: 0.875rem;
+
+    --spacing-3-5: 12px;
+    --spacing-4: 13px;
+    --spacing-5: 15px;
+    --spacing-6: 16px;
+    --spacing-8: 18px;
+    --spacing-10: 22px;
+    --spacing-12: 24px;
+    --spacing-16: 32px;
+    --spacing-20: 36px;
+
+    --space-3-5: 12px;
+    --space-4: 13px;
+    --space-5: 15px;
+    --space-6: 16px;
+    --space-8: 18px;
+    --space-10: 22px;
+    --space-12: 24px;
+    --space-16: 32px;
+    --space-20: 36px;
+
+    --radius-lg: 10px;
+    --radius-xl: 12px;
+    --radius-2xl: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --navbar-height: 50px;
+    --mobile-nav-height: 48px;
+
+    --text-5xl: 1.75rem;
+    --text-4xl: 1.45rem;
+    --text-3xl: 1.25rem;
+    --text-2xl: 1.1rem;
+    --text-xl: 0.975rem;
+    --text-lg: 0.9rem;
+    --text-base: 0.84rem;
+    --text-sm: 0.775rem;
+    --text-xs: 0.6875rem;
+    --text-2xs: 0.625rem;
+
+    --font-size-5xl: 1.75rem;
+    --font-size-4xl: 1.45rem;
+    --font-size-3xl: 1.25rem;
+    --font-size-2xl: 1.1rem;
+    --font-size-xl: 0.975rem;
+    --font-size-lg: 0.9rem;
+    --font-size-base: 0.84rem;
+    --font-size-sm: 0.775rem;
+    --font-size-xs: 0.6875rem;
+    --font-size-2xs: 0.625rem;
+
+    --spacing-2-5: 8px;
+    --spacing-3: 10px;
+    --spacing-3-5: 11px;
+    --spacing-4: 12px;
+    --spacing-5: 13px;
+    --spacing-6: 14px;
+    --spacing-8: 16px;
+    --spacing-10: 18px;
+    --spacing-12: 20px;
+
+    --space-2-5: 8px;
+    --space-3: 10px;
+    --space-3-5: 11px;
+    --space-4: 12px;
+    --space-5: 13px;
+    --space-6: 14px;
+    --space-8: 16px;
+    --space-10: 18px;
+    --space-12: 20px;
+
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-xl: 10px;
+  }
+}

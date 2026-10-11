@@ -1,402 +1,293 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Sparkles,
+  Target,
   ArrowRight,
   ShieldCheck,
-  AlertTriangle,
-  Compass,
-  Target,
-  FileText,
-  Github,
   CheckCircle2,
-  TrendingUp,
-  Award,
-  Zap,
-  Info,
+  Clock,
+  Compass,
+  Briefcase,
   Layers,
-  ArrowUpRight
+  Sparkles,
+  ChevronRight,
+  TrendingUp,
+  AlertCircle,
+  BookOpen,
+  Milestone
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { skillAPI, roadmapAPI, missionAPI, interviewAPI, readinessAPI } from '../services/api';
-import Card from '../components/common/Card';
+import { useCareerData } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
-import ProgressBar from '../components/common/ProgressBar';
-import SkillComparisonChart from '../components/charts/SkillComparisonChart';
-import ReadinessRadarChart from '../components/charts/ReadinessRadarChart';
+import './DashboardPage.css';
 
 export default function DashboardPage() {
-  const { user, profile, isDemoMode } = useAuth();
+  const { profile, skills, skillGaps, roadmap, projects, activityLogs } = useCareerData();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
-  const [skillsData, setSkillsData] = useState([]);
-  const [gapsData, setGapsData] = useState([]);
-  const [roadmap, setRoadmap] = useState(null);
-  const [missions, setMissions] = useState([]);
-  const [readiness, setReadiness] = useState(null);
-  const [recentInterview, setRecentInterview] = useState(null);
+  // Find active roadmap step (Step 3 by default: Create a REST API)
+  const activeRoadmapStep = roadmap.find(s => s.status === 'in-progress') || roadmap.find(s => s.status === 'not-started');
+  const completedRoadmapSteps = roadmap.filter(s => s.status === 'completed');
 
-  useEffect(() => {
-    async function loadDashboard() {
-      setLoading(true);
-      try {
-        const [gapsRes, roadmapRes, missionsRes, interviewRes, readinessRes] = await Promise.allSettled([
-          skillAPI.getGaps(),
-          roadmapAPI.getRoadmap(),
-          missionAPI.getMissions(),
-          interviewAPI.getHistory(),
-          readinessAPI.getSnapshot()
-        ]);
+  // Find active project mission (Task Manager REST API by default)
+  const activeMission = projects.find(p => p.status === 'in-progress') || projects.find(p => p.status === 'not-started');
 
-        if (gapsRes.status === 'fulfilled') {
-          setSkillsData(gapsRes.value.data.skills || []);
-          setGapsData(gapsRes.value.data.gaps || []);
-        }
-        if (roadmapRes.status === 'fulfilled') {
-          setRoadmap(roadmapRes.value.data.roadmap);
-        }
-        if (missionsRes.status === 'fulfilled') {
-          setMissions(missionsRes.value.data.missions || []);
-        }
-        if (interviewRes.status === 'fulfilled') {
-          const sessions = interviewRes.value.data.sessions || [];
-          if (sessions.length > 0) {
-            setRecentInterview(sessions[sessions.length - 1]);
-          }
-        }
-        if (readinessRes.status === 'fulfilled') {
-          setReadiness(readinessRes.value.data.readiness);
-        }
-      } catch (err) {
-        console.error('Error loading dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadDashboard();
-  }, [profile?.targetRole]);
-
-  // Skill counts by state
-  const verifiedCount = skillsData.filter(s => s.state === 'Verified').length;
-  const probableCount = skillsData.filter(s => s.state === 'Probable').length;
-  const claimedCount = skillsData.filter(s => s.state === 'Claimed').length;
-  const unknownCount = skillsData.filter(s => s.state === 'Unknown').length;
-
-  const topGaps = gapsData.slice(0, 5);
-  const activeMission = missions.find(m => m.status === 'in_progress') || missions[0];
-
-  if (loading) {
-    return (
-      <div className="py-20 flex flex-col items-center justify-center space-y-4">
-        <div className="w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-slate-500 font-medium">Calibrating career intelligence pipeline...</p>
-      </div>
-    );
-  }
+  // Find top priority skill gap
+  const topGap = skillGaps.find(g => g.priority === 'High' && g.state !== 'Demonstrated') || skillGaps[0];
 
   return (
-    <div className="space-y-6">
-      {/* Target Role & Profile Hero Banner */}
-      <div className="bg-gradient-to-r from-[#102A43] via-[#1B3A5A] to-[#243B53] rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-radial from-blue-500/10 to-transparent pointer-events-none" />
+    <div className="dashboard-page">
+      {/* 1. Welcome Message & Current Career Goal */}
+      <div className="dashboard-page__welcome-card">
+        <div>
+          <div className="dashboard-page__stage-row">
+            <span className="dashboard-page__stage-label">
+              Personalized Career Workspace
+            </span>
+            <span className="dashboard-page__stage-badge">
+              {profile.currentStage}
+            </span>
+          </div>
+          <h1 className="dashboard-page__welcome-title">
+            Welcome back, {profile.fullName}
+          </h1>
+          <p className="dashboard-page__welcome-desc">
+            Target Career Goal: <span className="dashboard-page__welcome-target">{profile.targetRole}</span>
+          </p>
+        </div>
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              {profile?.college ? (
-                <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                  {profile.college}
-                </span>
-              ) : (
-                <span className="bg-blue-500/30 text-blue-200 border border-blue-400/30 px-2.5 py-0.5 rounded-full text-xs font-semibold">
-                  Active Career Profile
-                </span>
-              )}
-              {isDemoMode && (
-                <span className="bg-amber-500/30 text-amber-200 border border-amber-400/30 px-2.5 py-0.5 rounded-full text-[11px] font-medium">
-                  Sample Sandbox Mode
-                </span>
-              )}
-            </div>
+        {/* Quick Context Card */}
+        <div className="dashboard-page__context-card">
+          <span className="dashboard-page__context-title">Current Demo Profile Context:</span>
+          <p>
+            Existing evidence: <strong style={{ color: 'var(--color-text-primary)' }}>{profile.existingEvidence}</strong>. Challenge: <strong style={{ color: 'var(--color-text-primary)' }}>{profile.currentChallenge}</strong>.
+          </p>
+        </div>
+      </div>
 
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              Welcome back, {user?.name || 'Student'}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl leading-relaxed">
-              Target Career Role: <strong className="text-blue-300">{profile?.targetRole || 'Full-Stack Developer'}</strong>. 
-              Your profile is verified through continuous code scanning, project missions, and adaptive interview calibration.
-            </p>
+      {/* 2. Primary Highlight: "What Should I Do Next?" (Principle C: One Useful Next Action) */}
+      <div className="dashboard-page__next-action">
+        <div className="dashboard-page__next-action-body">
+          <div className="dashboard-page__action-pill">
+            <Target style={{ width: 14, height: 14, color: 'var(--color-brand-accent)' }} />
+            <span>Recommended Next Action</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <Link to="/app/interview">
-              <Button variant="primary" size="md" icon={Sparkles} className="shadow-lg shadow-blue-500/30">
-                Mock Interview
-              </Button>
-            </Link>
-            <Link to="/app/resume">
-              <Button variant="navy" size="md" icon={FileText} className="border border-slate-600 bg-slate-800/80 hover:bg-slate-700">
-                Scan Resume
-              </Button>
-            </Link>
+          <h2 className="dashboard-page__action-title">
+            Next Action: Build a Small REST API
+          </h2>
+
+          <p className="dashboard-page__action-desc">
+            Your target role requires backend development evidence. Currently, your profile has limited practical proof of API architecture. Complete this mission to demonstrate REST route design, error handling, and upgrade REST APIs from Claimed to Demonstrated.
+          </p>
+
+          <div className="dashboard-page__action-buttons">
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => navigate('/app/projects')}
+              icon={ArrowRight}
+            >
+              Start Mission: Task Manager REST API
+            </Button>
+            <Button
+              variant="outline"
+              size="md"
+              onClick={() => navigate('/app/skills')}
+              style={{ color: '#FFFFFF', borderColor: 'rgba(255, 255, 255, 0.3)' }}
+            >
+              Inspect Skill Gaps
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* KPI Metric Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Metric 1: Verified Skills */}
-        <Card hoverEffect className="!p-4 sm:!p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Verified Skills</span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <ShieldCheck className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">{verifiedCount}</span>
-            <span className="text-xs text-slate-500">skills</span>
-          </div>
-          <p className="text-[11px] text-emerald-600 font-medium mt-1 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> Backed by code & test evidence
-          </p>
-        </Card>
-
-        {/* Metric 2: Claimed & Probable */}
-        <Card hoverEffect className="!p-4 sm:!p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Probable / Claimed</span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Layers className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">{probableCount + claimedCount}</span>
-            <span className="text-xs text-slate-500">pending verification</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            {probableCount} probable • {claimedCount} claimed
-          </p>
-        </Card>
-
-        {/* Metric 3: Critical Gaps */}
-        <Card hoverEffect className="!p-4 sm:!p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">High-Priority Gaps</span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-              <AlertTriangle className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              {gapsData.filter(g => g.priority === 'High').length}
-            </span>
-            <span className="text-xs text-slate-500">priority areas</span>
-          </div>
-          <p className="text-[11px] text-rose-600 font-medium mt-1">
-            Requires focused project action
-          </p>
-        </Card>
-
-        {/* Metric 4: Overall Readiness Score */}
-        <Card hoverEffect className="!p-4 sm:!p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 font-medium">Career Readiness</span>
-            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              {readiness?.overallReadiness || 68}%
-            </span>
-            <span className="text-xs text-slate-500">index</span>
-          </div>
-          <ProgressBar
-            value={readiness?.overallReadiness || 68}
-            showValue={false}
-            size="sm"
-            color="blue"
-            className="mt-2"
-          />
-        </Card>
-      </div>
-
-      {/* Grid: Skill Gaps Comparison & Readiness Radar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 cols: Skill Level vs Target Comparison */}
-        <Card
-          className="lg:col-span-2"
-          title="Demonstrated vs Target Competencies"
-          subtitle="Transparent comparison of observed skills against curated benchmark standards"
-          action={
-            <Link to="/app/skills" className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1">
-              View All Gaps <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          }
-        >
-          <SkillComparisonChart data={gapsData} />
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span className="flex items-center gap-1.5">
-              <Info className="w-3.5 h-3.5 text-blue-600" />
-              Source: Curated Academic & Industry Benchmark
-            </span>
-            <span className="text-[11px] text-slate-400">Estimates are for decision support</span>
-          </div>
-        </Card>
-
-        {/* Right 1 col: Career Readiness Radar */}
-        <Card
-          title="Multidimensional Readiness"
-          subtitle="6-Pillar balance across technical, project, and interview readiness"
-          action={
-            <Link to="/app/readiness" className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1">
-              Details <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          }
-        >
-          <ReadinessRadarChart dimensions={readiness?.dimensions} />
-          
-          {readiness?.nextActionRecommendation && (
-            <div className="mt-4 p-3 rounded-xl bg-blue-50/70 border border-blue-200/80">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 block">
-                Recommended Next Step
-              </span>
-              <p className="text-xs font-semibold text-slate-900 mt-0.5">
-                {readiness.nextActionRecommendation.title}
-              </p>
-              <Link to={readiness.nextActionRecommendation.targetLink}>
-                <Button size="sm" variant="primary" className="w-full mt-2 !py-1 text-xs" icon={ArrowRight}>
-                  Take Action
-                </Button>
+      {/* 3. Main Dashboard 2-Column Grid */}
+      <div className="dashboard-page__grid">
+        {/* Left Column (2 Cols): Active Roadmap & Project Mission */}
+        <div className="dashboard-page__column">
+          {/* Current Roadmap Activity */}
+          <div className="dashboard-card">
+            <div className="dashboard-card__header">
+              <div className="dashboard-card__header-left">
+                <Milestone style={{ width: 20, height: 20, color: 'var(--color-brand-blue)' }} />
+                <h3 className="dashboard-card__title">Current Roadmap Activity</h3>
+              </div>
+              <Link
+                to="/app/roadmap"
+                className="dashboard-card__link"
+              >
+                <span>View Full Roadmap ({completedRoadmapSteps.length}/{roadmap.length})</span>
+                <ChevronRight style={{ width: 14, height: 14 }} />
               </Link>
             </div>
-          )}
-        </Card>
-      </div>
 
-      {/* Grid: Top 5 Skill Gaps Table & Active Mission / Roadmap */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top 5 Prioritized Skill Gaps */}
-        <Card
-          title="Top 5 Skill Gaps & Deficiencies"
-          subtitle="Deterministically ranked by role weight and missing evidence confidence"
-          action={
-            <Link to="/app/skills" className="text-xs text-blue-600 hover:text-blue-700 font-semibold">
-              Deep Dive
-            </Link>
-          }
-        >
-          <div className="space-y-3">
-            {topGaps.map((gap) => (
-              <div
-                key={gap.skillName}
-                className="p-3 rounded-xl border border-slate-200/90 hover:border-slate-300 transition-colors bg-white flex items-center justify-between gap-3"
-              >
-                <div className="truncate">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-slate-800 truncate">{gap.skillName}</span>
-                    <Badge variant={gap.priority} size="sm">{gap.priority}</Badge>
-                    <Badge variant={gap.state} size="sm">{gap.state}</Badge>
-                  </div>
-                  <p className="text-[11px] text-slate-500 mt-1 truncate">
-                    Deficiency: {gap.deficiency}% • Target: {gap.targetLevel}%
-                  </p>
+            {activeRoadmapStep ? (
+              <div className="dashboard-roadmap-box">
+                <div className="dashboard-roadmap-box__tag-row">
+                  <span className="dashboard-roadmap-box__step-badge">
+                    Step {roadmap.findIndex(s => s.id === activeRoadmapStep.id) + 1} of {roadmap.length} • {activeRoadmapStep.status === 'in-progress' ? 'In Progress' : 'Next Up'}
+                  </span>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', fontWeight: 500 }}>
+                    Est. Effort: {activeRoadmapStep.estimatedEffort}
+                  </span>
                 </div>
 
-                <div className="shrink-0 text-right">
-                  <Link to="/app/missions">
-                    <Button size="sm" variant="outline" className="!py-1 !px-2.5 !text-xs">
-                      Fix Gap
+                <h4 className="dashboard-roadmap-box__title">
+                  {activeRoadmapStep.title}
+                </h4>
+
+                <p className="dashboard-roadmap-box__desc">
+                  {activeRoadmapStep.learningObjective}
+                </p>
+
+                <div className="dashboard-roadmap-box__footer">
+                  <span style={{ color: 'var(--color-text-secondary)' }}>
+                    Prerequisites: <strong style={{ color: 'var(--color-text-primary)' }}>{activeRoadmapStep.prerequisites}</strong>
+                  </span>
+                  <Link to="/app/roadmap">
+                    <Button size="xs" variant="outline" icon={ArrowRight}>
+                      Continue Step
                     </Button>
                   </Link>
                 </div>
               </div>
-            ))}
+            ) : (
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>All roadmap steps marked complete.</p>
+            )}
           </div>
-        </Card>
 
-        {/* Current Active Mission & Roadmap Tracker */}
-        <div className="space-y-6">
-          {/* Active Mission */}
-          {activeMission && (
-            <Card
-              title="Current Practical Mission"
-              subtitle="Convert theoretical knowledge into verifiable code deliverables"
-              action={
-                <Badge variant={activeMission.status} size="sm">
-                  {activeMission.status}
-                </Badge>
-              }
-            >
-              <h4 className="text-sm font-bold text-slate-900">{activeMission.title}</h4>
-              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                {activeMission.description}
-              </p>
-
-              <div className="mt-3 flex items-center gap-2 text-xs text-slate-500 font-medium">
-                <Target className="w-3.5 h-3.5 text-blue-600" />
-                <span>Target Skill: <strong className="text-slate-700">{activeMission.skillTargeted}</strong></span>
-                <span>•</span>
-                <span>Reward: <strong className="text-emerald-600">+{activeMission.reward?.skillGain || 25}%</strong></span>
+          {/* Active Project Mission */}
+          <div className="dashboard-card">
+            <div className="dashboard-card__header">
+              <div className="dashboard-card__header-left">
+                <Briefcase style={{ width: 20, height: 20, color: '#4F46E5' }} />
+                <h3 className="dashboard-card__title">Active Project Mission</h3>
               </div>
+              <Link
+                to="/app/projects"
+                className="dashboard-card__link"
+              >
+                <span>Project Lab</span>
+                <ChevronRight style={{ width: 14, height: 14 }} />
+              </Link>
+            </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Est. Time: {activeMission.estimatedHours} hrs</span>
-                <Link to="/app/missions">
-                  <Button size="sm" variant="primary" icon={ArrowRight}>
-                    Open Mission Workspace
-                  </Button>
-                </Link>
-              </div>
-            </Card>
-          )}
-
-          {/* Recent Mock Interview Snapshot */}
-          {recentInterview && (
-            <Card
-              title="Recent Mock Interview Results"
-              subtitle={`Role: ${recentInterview.targetRole} • Mode: ${recentInterview.mode}`}
-              action={
-                <Link to={`/app/interview/${recentInterview._id}`} className="text-xs text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1">
-                  Full Report <ArrowUpRight className="w-3 h-3" />
-                </Link>
-              }
-            >
-              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <div>
-                  <span className="text-xs text-slate-500 block">Overall Score</span>
-                  <span className="text-xl font-extrabold text-blue-600">
-                    {recentInterview.finalReport?.overallScore || 85}/100
+            {activeMission ? (
+              <div className="dashboard-mission-box">
+                <div className="dashboard-roadmap-box__tag-row">
+                  <span className="dashboard-mission-box__mode-badge">
+                    {activeMission.mode === 'guided' ? 'Guided Mode' : 'Challenge Mode'} • {activeMission.status === 'in-progress' ? 'Active' : 'Available'}
+                  </span>
+                  <span style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>
+                    Skills: {activeMission.intendedSkills.join(', ')}
                   </span>
                 </div>
 
-                <div className="flex gap-4 text-xs text-slate-600">
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Technical</span>
-                    <span className="font-semibold text-slate-800">
-                      {recentInterview.finalReport?.dimensionScores?.technical || 88}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Reasoning</span>
-                    <span className="font-semibold text-slate-800">
-                      {recentInterview.finalReport?.dimensionScores?.reasoning || 85}%
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-400 block uppercase">Communication</span>
-                    <span className="font-semibold text-slate-800">
-                      {recentInterview.finalReport?.dimensionScores?.communication || 90}%
-                    </span>
-                  </div>
+                <h4 className="dashboard-mission-box__title">
+                  {activeMission.title}
+                </h4>
+
+                <p className="dashboard-mission-box__desc">
+                  {activeMission.projectObjective}
+                </p>
+
+                <div className="dashboard-mission-box__footer">
+                  <span style={{ color: 'var(--color-text-secondary)' }}>Deliverable: {activeMission.deliverables}</span>
+                  <Link to="/app/projects">
+                    <Button size="xs" variant="primary" icon={ArrowRight}>
+                      Open Project Workspace
+                    </Button>
+                  </Link>
                 </div>
               </div>
-            </Card>
-          )}
+            ) : (
+              <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)' }}>No active mission at the moment.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Relevant Skill Gaps & Meaningful Progress */}
+        <div className="dashboard-page__column">
+          {/* Relevant Skill Gaps */}
+          <div className="dashboard-card">
+            <div className="dashboard-card__header">
+              <h3 className="dashboard-card__title">Target Role Skill Gaps</h3>
+              <Link to="/app/skills" className="dashboard-card__link">
+                View All Gaps
+              </Link>
+            </div>
+
+            <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-3)' }}>
+              Gaps prioritized based on {profile.targetRole} role requirements and your current verified evidence:
+            </p>
+
+            <div>
+              {skillGaps.slice(0, 4).map((gap) => (
+                <div key={gap.id} className="dashboard-gap-item">
+                  <div className="dashboard-gap-item__top">
+                    <span className="dashboard-gap-item__name">{gap.skillName}</span>
+                    <Badge variant={gap.priority} size="sm">
+                      {gap.priority} Priority
+                    </Badge>
+                  </div>
+
+                  <div className="dashboard-gap-item__meta">
+                    <span>Evidence State: <strong style={{ color: 'var(--color-text-primary)' }}>{gap.state}</strong></span>
+                    <span>Target: Core Requirement</span>
+                  </div>
+
+                  <p className="dashboard-gap-item__action">
+                    {gap.nextAction}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Meaningful Progress */}
+          <div className="dashboard-card">
+            <div className="dashboard-card__header">
+              <h3 className="dashboard-card__title">Recent Meaningful Progress</h3>
+              <Link to="/app/progress" className="dashboard-card__link">
+                Progress Details
+              </Link>
+            </div>
+
+            <div>
+              {activityLogs.slice(0, 4).map((log) => (
+                <div key={log.id} className="dashboard-activity-item">
+                  <span className="dashboard-activity-dot" />
+                  <div>
+                    <span className="dashboard-activity-title">{log.title}</span>
+                    <span className="dashboard-activity-detail">{log.detail}</span>
+                    <span className="dashboard-activity-time">{log.timestamp}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Workflows Navigation */}
+          <div className="dashboard-shortcuts-card">
+            <span className="dashboard-shortcuts-title">
+              Quick Workflow Shortcuts
+            </span>
+            <div className="dashboard-shortcuts-grid">
+              <Link to="/app/explore" className="dashboard-shortcut-btn">
+                Explore Careers
+              </Link>
+              <Link to="/app/interview" className="dashboard-shortcut-btn">
+                Interview Arena
+              </Link>
+              <Link to="/app/skills" className="dashboard-shortcut-btn">
+                My Skills
+              </Link>
+              <Link to="/app/profile" className="dashboard-shortcut-btn">
+                Career Profile
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

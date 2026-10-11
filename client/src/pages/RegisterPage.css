@@ -1,0 +1,15 @@
+/* RegisterPage.css - Student Registration */
+@import './LoginPage.css';
+
+.auth-subtitle--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.auth-subtitle-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-brand-blue);
+}

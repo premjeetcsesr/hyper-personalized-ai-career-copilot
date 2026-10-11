@@ -97,9 +97,8 @@ function aggregateUserSkills(evidenceRecords = [], profileClaimed = []) {
  */
 async function computeSkillGaps(userSkills, targetRoleName) {
   const role = getRoleProfile(targetRoleName);
-  const gaps = [];
 
-  for (const comp of role.competencies) {
+  const gapPromises = role.competencies.map(async (comp) => {
     const matchedUserSkill = userSkills.find(
       s => normalizeSkillName(s.skillName) === normalizeSkillName(comp.skill)
     );
@@ -134,7 +133,7 @@ async function computeSkillGaps(userSkills, targetRoleName) {
       priority = 'Medium';
     }
 
-    // Explanation
+    // Explanation with live AI / fallback
     const explanationData = await generateGapExplanation({
       skillName: comp.skill,
       currentLevel,
@@ -143,7 +142,7 @@ async function computeSkillGaps(userSkills, targetRoleName) {
       state
     });
 
-    gaps.push({
+    return {
       skillName: comp.skill,
       category: comp.category,
       currentLevel,
@@ -158,8 +157,10 @@ async function computeSkillGaps(userSkills, targetRoleName) {
       rationale: explanationData.rationale,
       marketContext: explanationData.marketContext,
       recommendedActions: explanationData.actionSteps
-    });
-  }
+    };
+  });
+
+  const gaps = await Promise.all(gapPromises);
 
   // Sort by priorityScore descending
   gaps.sort((a, b) => b.priorityScore - a.priorityScore);

@@ -1,0 +1,139 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-1-5);
+  border-radius: var(--radius-full);
+  user-select: none;
+  font-family: var(--font-sans);
+  line-height: var(--leading-none);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+/* Sizes */
+.status-badge--sm {
+  font-size: var(--text-2xs);
+  padding: 2px 8px;
+}
+
+.status-badge--md {
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  font-weight: var(--font-medium);
+}
+
+.status-badge--lg {
+  font-size: var(--text-sm);
+  padding: 6px 14px;
+  font-weight: var(--font-medium);
+}
+
+.status-badge__icon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+/* Evidence States (Principle B: Non-color indicators + high contrast) */
+.status-badge--Verified,
+.status-badge--Demonstrated,
+.status-badge--verified {
+  background-color: var(--color-demonstrated-bg);
+  border-color: var(--color-demonstrated-border);
+  color: var(--color-demonstrated-text);
+  font-weight: var(--font-semibold);
+}
+
+.status-badge--Probable {
+  background-color: var(--color-probable-bg);
+  border-color: var(--color-probable-border);
+  color: var(--color-probable-text);
+  font-weight: var(--font-semibold);
+}
+
+.status-badge--Claimed {
+  background-color: var(--color-claimed-bg);
+  border-color: var(--color-claimed-border);
+  color: var(--color-claimed-text);
+  font-weight: var(--font-medium);
+}
+
+.status-badge--Unknown {
+  background-color: var(--color-unknown-bg);
+  border-color: var(--color-unknown-border);
+  color: var(--color-unknown-text);
+  font-weight: var(--font-normal);
+}
+
+/* Priority States */
+.status-badge--High {
+  background-color: var(--color-error-bg);
+  border-color: var(--color-error-border);
+  color: var(--color-error-text);
+  font-weight: var(--font-bold);
+}
+
+.status-badge--Medium {
+  background-color: var(--color-warning-bg);
+  border-color: var(--color-warning-border);
+  color: var(--color-warning-text);
+  font-weight: var(--font-semibold);
+}
+
+.status-badge--Low {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-medium);
+}
+
+/* Lifecycle Statuses */
+.status-badge--completed {
+  background-color: var(--color-success-bg);
+  border-color: var(--color-success-border);
+  color: var(--color-success-text);
+  font-weight: var(--font-semibold);
+}
+
+.status-badge--in_progress {
+  background-color: var(--color-info-bg);
+  border-color: var(--color-info-border);
+  color: var(--color-info-text);
+  font-weight: var(--font-semibold);
+}
+
+.status-badge--pending {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.status-badge--available {
+  background-color: #EEF2FF;
+  border-color: #C7D2FE;
+  color: #3730A3;
+  font-weight: var(--font-medium);
+}
+
+/* Base Variants */
+.status-badge--primary {
+  background-color: var(--color-brand-blue);
+  color: #FFFFFF;
+}
+
+.status-badge--navy {
+  background-color: var(--color-brand-primary);
+  color: #FFFFFF;
+}
+
+.status-badge--outline {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background-color: var(--color-surface);
+}
+
+.status-badge--default {
+  background-color: var(--color-surface-subtle);
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}

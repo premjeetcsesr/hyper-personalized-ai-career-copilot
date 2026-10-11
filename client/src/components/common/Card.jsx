@@ -1,18 +1,30 @@
 import React from 'react';
+import './Card.css';
 
-export default function Card({ children, title, subtitle, action, className = '', headerClassName = '', bodyClassName = '', hoverEffect = false }) {
+export default function Card({
+  children,
+  title,
+  subtitle,
+  action,
+  className = '',
+  headerClassName = '',
+  bodyClassName = '',
+  hoverEffect = false
+}) {
+  const hoverClass = hoverEffect ? 'app-card--hover' : '';
+
   return (
-    <div className={`bg-white rounded-xl border border-slate-200/90 shadow-sm ${hoverEffect ? 'hover:shadow-md hover:border-slate-300 transition-all duration-200' : ''} ${className}`}>
+    <div className={`app-card ${hoverClass} ${className}`.trim()}>
       {(title || subtitle || action) && (
-        <div className={`px-6 py-4.5 border-b border-slate-100 flex items-center justify-between ${headerClassName}`}>
+        <div className={`app-card__header ${headerClassName}`.trim()}>
           <div>
-            {title && <h3 className="text-base font-semibold text-slate-900 tracking-tight">{title}</h3>}
-            {subtitle && <p className="text-xs text-slate-500 mt-0.5">{subtitle}</p>}
+            {title && <h3 className="app-card__title">{title}</h3>}
+            {subtitle && <p className="app-card__subtitle">{subtitle}</p>}
           </div>
           {action && <div>{action}</div>}
         </div>
       )}
-      <div className={`p-6 ${bodyClassName}`}>
+      <div className={`app-card__body ${bodyClassName}`.trim()}>
         {children}
       </div>
     </div>

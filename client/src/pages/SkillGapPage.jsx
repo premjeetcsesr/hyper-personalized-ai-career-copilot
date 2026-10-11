@@ -1,363 +1,459 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   GitPullRequestDraft,
-  AlertCircle,
-  ShieldCheck,
   CheckCircle2,
-  ChevronRight,
-  TrendingUp,
-  FileCheck2,
   Plus,
   ArrowRight,
-  Info,
-  HelpCircle,
-  ExternalLink
+  ChevronRight,
+  X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { skillAPI } from '../services/api';
-import Card from '../components/common/Card';
+import { useCareerData } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
-import ProgressBar from '../components/common/ProgressBar';
-import SkillComparisonChart from '../components/charts/SkillComparisonChart';
+import './SkillGapPage.css';
 
 export default function SkillGapPage() {
-  const { profile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState(null);
-  const [stateFilter, setStateFilter] = useState('ALL');
-  const [selectedGap, setSelectedGap] = useState(null);
-  const [evidenceModalOpen, setEvidenceModalOpen] = useState(false);
-  const [proofSkill, setProofSkill] = useState('');
-  const [proofProficiency, setProofProficiency] = useState(75);
-  const [proofReason, setProofReason] = useState('');
-  const [proofLink, setProofLink] = useState('');
-  const [submittingProof, setSubmittingProof] = useState(false);
-  const [successNote, setSuccessNote] = useState('');
+  const { profile, skills, skillGaps, addSelfReportedSkill } = useCareerData();
 
-  useEffect(() => {
-    loadGaps();
-  }, [profile?.targetRole]);
+  const [activeTab, setActiveTab] = useState('gaps'); // 'gaps' | 'all-skills'
+  const [filterState, setFilterState] = useState('ALL');
+  const [selectedGap, setSelectedGap] = useState(skillGaps[0] || null);
+  const [mobileExpandedId, setMobileExpandedId] = useState(skillGaps[0]?.id || null);
 
-  const loadGaps = async () => {
-    setLoading(true);
-    try {
-      const res = await skillAPI.getGaps();
-      setData(res.data);
-      if (res.data.gaps?.length > 0) {
-        setSelectedGap(res.data.gaps[0]);
-      }
-    } catch (err) {
-      console.error('Failed to load skill gaps:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Add Skill Modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newSkillForm, setNewSkillForm] = useState({
+    name: '',
+    category: 'Frontend',
+    state: 'Claimed',
+    description: '',
+    relatedProject: ''
+  });
+  const [notification, setNotification] = useState(null);
 
-  const handleOpenEvidenceModal = (gap) => {
-    setProofSkill(gap.skillName);
-    setProofProficiency(Math.min(95, gap.targetLevel));
-    setProofReason('');
-    setProofLink('');
-    setEvidenceModalOpen(true);
-  };
+  // Filter skills
+  const filteredSkills = skills.filter(s => {
+    if (filterState === 'ALL') return true;
+    return s.state.toUpperCase() === filterState.toUpperCase();
+  });
 
-  const handleSubmitEvidence = async (e) => {
+  const handleAddSkillSubmit = (e) => {
     e.preventDefault();
-    setSubmittingProof(true);
-    try {
-      await skillAPI.updateEvidence({
-        skillName: proofSkill,
-        proficiencyLevel: proofProficiency,
-        state: 'Verified',
-        reason: proofReason || 'Candidate submitted verifiable code proof link.',
-        proofLink
-      });
-      setEvidenceModalOpen(false);
-      setSuccessNote(`Evidence recorded! "${proofSkill}" has been updated.`);
-      setTimeout(() => setSuccessNote(''), 4000);
-      loadGaps();
-    } catch (err) {
-      console.error('Proof submission failed:', err);
-    } finally {
-      setSubmittingProof(false);
-    }
+    if (!newSkillForm.name.trim()) return;
+
+    addSelfReportedSkill({
+      name: newSkillForm.name.trim(),
+      category: newSkillForm.category,
+      state: newSkillForm.state,
+      description: newSkillForm.description || `Self-reported ${newSkillForm.name}.`,
+      relatedProject: newSkillForm.relatedProject || 'Self-reported'
+    });
+
+    setIsAddModalOpen(false);
+    setNewSkillForm({ name: '', category: 'Frontend', state: 'Claimed', description: '', relatedProject: '' });
+    setNotification(`Skill "${newSkillForm.name}" added as Claimed. Complete a project mission to earn Demonstrated status.`);
+    setTimeout(() => setNotification(null), 5000);
   };
 
-  if (loading) {
-    return (
-      <div className="py-20 flex flex-col items-center justify-center space-y-3">
-        <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-slate-500">Calculating deterministic competency matrix...</p>
+  const renderGapBreakdown = (gap) => (
+    <div className="skill-gap-page__breakdown">
+      <div>
+        <span className="skill-gap-page__breakdown-label">
+          1. Competency Definition
+        </span>
+        <p className="skill-gap-page__breakdown-box">
+          {gap.whatItMeans}
+        </p>
       </div>
-    );
-  }
 
-  const allGaps = data?.gaps || [];
-  const filteredGaps = stateFilter === 'ALL'
-    ? allGaps
-    : allGaps.filter(g => g.state.toUpperCase() === stateFilter);
+      <div>
+        <span className="skill-gap-page__breakdown-label">
+          2. Relevance for {profile.targetRole}
+        </span>
+        <p className="skill-gap-page__breakdown-box">
+          {gap.whyItMatters}
+        </p>
+      </div>
+
+      <div>
+        <span className="skill-gap-page__breakdown-label">
+          3. Existing Evidence on Record
+        </span>
+        <p className="skill-gap-page__breakdown-box">
+          {gap.existingEvidence}
+        </p>
+      </div>
+
+      <div>
+        <span className="skill-gap-page__breakdown-label">
+          4. What Is Missing
+        </span>
+        <p className="skill-gap-page__breakdown-box skill-gap-page__breakdown-box--danger">
+          {gap.whatIsMissing}
+        </p>
+      </div>
+
+      <div>
+        <span className="skill-gap-page__breakdown-label">
+          5. Recommended Next Practical Action
+        </span>
+        <p className="skill-gap-page__breakdown-box skill-gap-page__breakdown-box--highlight">
+          {gap.nextAction}
+        </p>
+      </div>
+
+      <div>
+        <span className="skill-gap-page__breakdown-label">
+          6. Transparent Assessment Rubric
+        </span>
+        <p className="skill-gap-page__breakdown-box">
+          {gap.howAssessed}
+        </p>
+      </div>
+
+      <div className="skill-gap-page__breakdown-action">
+        <span className="skill-gap-page__breakdown-action-note">
+          Requires verified code artifact in Project Lab
+        </span>
+        <Link to="/app/projects">
+          <Button size="sm" variant="primary" icon={ArrowRight}>
+            Start Related Project Mission
+          </Button>
+        </Link>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Skill Gap Analysis</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Comparing demonstrated abilities against the <strong className="text-slate-700">{data?.targetRole}</strong> competency profile.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-slate-500 font-medium">Filter by State:</span>
-          {['ALL', 'VERIFIED', 'PROBABLE', 'CLAIMED', 'UNKNOWN'].map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setStateFilter(filter)}
-              className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-colors ${
-                stateFilter === filter
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {successNote && (
-        <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2 font-medium">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-          <span>{successNote}</span>
+    <div className="skill-gap-page">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="skill-gap-page__toast" role="status">
+          <div className="skill-gap-page__toast-content">
+            <CheckCircle2 size={16} className="skill-gap-page__toast-icon" />
+            <span>{notification}</span>
+          </div>
+          <button onClick={() => setNotification(null)} className="skill-gap-page__toast-close" aria-label="Dismiss">
+            <X size={14} />
+          </button>
         </div>
       )}
 
-      {/* Bar Chart Comparison */}
-      <Card
-        title="Competency Deficiencies: Current vs Target Benchmark"
-        subtitle={data?.benchmarkType || 'Industry Standard Competency Benchmark (Team Technovoo1)'}
-      >
-        <SkillComparisonChart data={allGaps} />
-        <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-          <span className="flex items-center gap-1.5">
-            <Info className="w-3.5 h-3.5 text-blue-600" />
-            Decision-support model: Unknown is never scored as zero ability.
-          </span>
-          <span className="text-[11px] text-slate-400">Calibration refreshed on evidence updates</span>
-        </div>
-      </Card>
-
-      {/* Detailed Gaps Table & Explanation Drawer */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Gap list table */}
-        <div className="lg:col-span-2 space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <h3 className="text-sm font-bold text-slate-900">
-              Evaluated Competencies ({filteredGaps.length})
-            </h3>
-            <span className="text-xs text-slate-400">Ranked by Priority Score</span>
+      {/* Header */}
+      <div className="skill-gap-page__header">
+        <div>
+          <div className="skill-gap-page__badge">
+            <GitPullRequestDraft size={14} className="skill-gap-page__badge-icon" />
+            <span>Evidence Before Inference Engine</span>
           </div>
+          <h1 className="skill-gap-page__title">
+            My Skills & Prioritized Gap Analysis
+          </h1>
+          <p className="skill-gap-page__subtitle">
+            Compare target competencies for <strong className="skill-gap-page__target-role-strong">{profile.targetRole}</strong> against your current evidence. Differentiates verified abilities from self-reported claims.
+          </p>
+        </div>
 
-          <div className="space-y-2.5">
-            {filteredGaps.map((gap) => {
-              const isSelected = selectedGap?.skillName === gap.skillName;
+        <div>
+          <Button
+            variant="outline"
+            size="sm"
+            icon={Plus}
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            Add Self-Reported Skill
+          </Button>
+        </div>
+      </div>
+
+      {/* 4 Evidentiary States Legend */}
+      <div className="skill-gap-page__legend-grid">
+        <div className="skill-gap-page__legend-card skill-gap-page__legend-card--demonstrated">
+          <div>
+            <Badge variant="Demonstrated" size="sm">Demonstrated</Badge>
+          </div>
+          <p className="skill-gap-page__legend-desc">
+            Practical evidence or completed project deliverable supports the competency.
+          </p>
+        </div>
+
+        <div className="skill-gap-page__legend-card skill-gap-page__legend-card--probable">
+          <div>
+            <Badge variant="Probable" size="sm">Probable</Badge>
+          </div>
+          <p className="skill-gap-page__legend-desc">
+            Partial exercises or code signals exist, but not conclusively verified.
+          </p>
+        </div>
+
+        <div className="skill-gap-page__legend-card skill-gap-page__legend-card--claimed">
+          <div>
+            <Badge variant="Claimed" size="sm">Claimed</Badge>
+          </div>
+          <p className="skill-gap-page__legend-desc">
+            Learner stated they know it; insufficient supporting project evidence.
+          </p>
+        </div>
+
+        <div className="skill-gap-page__legend-card skill-gap-page__legend-card--unknown">
+          <div>
+            <Badge variant="Unknown" size="sm">Unknown</Badge>
+          </div>
+          <p className="skill-gap-page__legend-desc">
+            Not yet assessed. Never penalized as zero; baseline potential.
+          </p>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="skill-gap-page__tabs">
+        <button
+          onClick={() => setActiveTab('gaps')}
+          className={`skill-gap-page__tab-btn ${activeTab === 'gaps' ? 'skill-gap-page__tab-btn--active' : ''}`}
+        >
+          Prioritized Skill Gaps ({skillGaps.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('all-skills')}
+          className={`skill-gap-page__tab-btn ${activeTab === 'all-skills' ? 'skill-gap-page__tab-btn--active' : ''}`}
+        >
+          My Full Skills Record ({skills.length})
+        </button>
+      </div>
+
+      {/* TAB 1: PRIORITIZED SKILL GAPS */}
+      {activeTab === 'gaps' && (
+        <div className="skill-gap-page__gaps-layout">
+          {/* Gaps List Column */}
+          <div className="skill-gap-page__gaps-list">
+            <span className="skill-gap-page__breakdown-label">
+              Gaps for {profile.targetRole}
+            </span>
+
+            {skillGaps.map((gap) => {
+              const isSelected = selectedGap?.id === gap.id;
+              const isMobileExpanded = mobileExpandedId === gap.id;
+
               return (
                 <div
-                  key={gap.skillName}
-                  onClick={() => setSelectedGap(gap)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer bg-white ${
-                    isSelected
-                      ? 'border-blue-600 ring-2 ring-blue-500/20 shadow-xs'
-                      : 'border-slate-200/90 hover:border-slate-300'
-                  }`}
+                  key={gap.id}
+                  className={`skill-gap-page__gap-card ${isSelected ? 'skill-gap-page__gap-card--selected' : ''}`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="truncate flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-bold text-slate-900">{gap.skillName}</span>
-                        <Badge variant={gap.priority} size="sm">{gap.priority} Priority</Badge>
-                        <Badge variant={gap.state} size="sm">{gap.state}</Badge>
-                      </div>
-                      <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
-                        <span>Current: <strong className="text-slate-800">{gap.currentLevel}%</strong></span>
-                        <span>Target: <strong className="text-blue-700">{gap.targetLevel}%</strong></span>
-                        <span>Deficiency: <strong className={gap.deficiency > 30 ? 'text-rose-600' : 'text-slate-700'}>{gap.deficiency}%</strong></span>
-                      </div>
+                  <div
+                    onClick={() => {
+                      setSelectedGap(gap);
+                      setMobileExpandedId(isMobileExpanded ? null : gap.id);
+                    }}
+                    className="skill-gap-page__gap-card-header"
+                  >
+                    <div className="skill-gap-page__gap-header-top">
+                      <span className="skill-gap-page__gap-skill-name">{gap.skillName}</span>
+                      <Badge variant={gap.priority} size="sm">
+                        {gap.priority} Priority
+                      </Badge>
                     </div>
 
-                    <div className="shrink-0 flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenEvidenceModal(gap);
-                        }}
-                        className="!text-xs !py-1"
-                      >
-                        Submit Evidence
-                      </Button>
-                      <ChevronRight className={`w-4 h-4 text-slate-400 transition-transform ${isSelected ? 'rotate-90 text-blue-600' : ''}`} />
+                    <div className="skill-gap-header-meta skill-gap-page__gap-header-meta">
+                      <div className="skill-gap-page__gap-current-wrap">
+                        <span className="skill-gap-page__gap-current-label">Current:</span>
+                        <Badge variant={gap.state} size="sm">{gap.state}</Badge>
+                      </div>
+                      <span className="skill-gap-page__gap-current-state">
+                        Target: Core Requirement
+                      </span>
+                    </div>
+
+                    <p className="skill-gap-page__gap-desc">
+                      {gap.whatIsMissing}
+                    </p>
+
+                    {/* Mobile expansion hint */}
+                    <div className="skill-gap-page__gap-mobile-toggle lg-hidden-block">
+                      <span>{isMobileExpanded ? 'Hide Details' : 'View Full Gap Breakdown'}</span>
+                      <ChevronRight size={14} className={isMobileExpanded ? 'skill-gap-page__chevron--expanded' : 'skill-gap-page__chevron'} />
                     </div>
                   </div>
+
+                  {/* Inline Expanded Mobile Breakdown */}
+                  {isMobileExpanded && (
+                    <div className="skill-gap-page__gap-mobile-breakdown">
+                      {renderGapBreakdown(gap)}
+                    </div>
+                  )}
                 </div>
               );
             })}
           </div>
-        </div>
 
-        {/* Selected Gap Deep-Dive Drawer */}
-        <div className="space-y-4">
-          {selectedGap ? (
-            <Card
-              title={selectedGap.skillName}
-              subtitle={`Competency Category: ${selectedGap.category || 'General'}`}
-            >
-              <div className="space-y-4">
-                {/* Score meters */}
-                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-slate-500">Demonstrated Proficiency</span>
-                    <span className="font-bold text-slate-800">{selectedGap.currentLevel}%</span>
+          {/* Gap Detail Explanation Column (Desktop) */}
+          <div className="skill-gap-page__inspector">
+            {selectedGap ? (
+              <div className="skill-gap-page__inspector-inner">
+                <div className="skill-gap-page__inspector-header">
+                  <div>
+                    <div className="skill-gap-page__inspector-meta">
+                      <span className="skill-gap-page__inspector-category">
+                        Skill Gap Analysis
+                      </span>
+                      <Badge variant={selectedGap.priority} size="sm">
+                        {selectedGap.priority} Priority
+                      </Badge>
+                    </div>
+                    <h3 className="skill-gap-page__inspector-title">{selectedGap.skillName}</h3>
                   </div>
-                  <ProgressBar value={selectedGap.currentLevel} size="sm" color="blue" showValue={false} />
 
-                  <div className="flex justify-between text-xs pt-1">
-                    <span className="text-slate-500">Target Role Requirement</span>
-                    <span className="font-bold text-blue-700">{selectedGap.targetLevel}%</span>
-                  </div>
-                  <ProgressBar value={selectedGap.targetLevel} size="sm" color="purple" showValue={false} />
+                  <Badge variant={selectedGap.state} size="md">
+                    {selectedGap.state}
+                  </Badge>
                 </div>
 
-                {/* Why this gap matters */}
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    Why This Gap Matters
-                  </h4>
-                  <p className="text-xs text-slate-700 leading-relaxed bg-blue-50/50 p-3 rounded-lg border border-blue-100">
-                    {selectedGap.rationale || 'Essential competency for production readiness.'}
-                  </p>
-                </div>
-
-                {/* Market context */}
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-                    Benchmark Expectation
-                  </h4>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    {selectedGap.marketContext || 'Standard industry requirement for candidates targeting this role.'}
-                  </p>
-                </div>
-
-                {/* Recommended Actions */}
-                <div>
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">
-                    Recommended Actions
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {selectedGap.recommendedActions?.map((act, idx) => (
-                      <li key={idx} className="text-xs text-slate-700 flex items-start gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0 mt-0.5" />
-                        <span>{act}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-2">
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => handleOpenEvidenceModal(selectedGap)}
-                    icon={FileCheck2}
-                  >
-                    Submit Proof for {selectedGap.skillName}
-                  </Button>
-                </div>
+                {renderGapBreakdown(selectedGap)}
               </div>
-            </Card>
-          ) : (
-            <Card>
-              <p className="text-xs text-slate-400 text-center py-8">
-                Select a competency to view gap rationale and recommended actions.
-              </p>
-            </Card>
-          )}
+            ) : (
+              <p className="skill-gap-page__empty-inspector-text">Select a gap from the left to view details.</p>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Supplementary Evidence Modal */}
-      {evidenceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
-            <h3 className="text-base font-bold text-slate-900">
-              Submit Supplementary Skill Evidence
-            </h3>
-            <p className="text-xs text-slate-500 mt-1">
-              Provide verifiable proof (e.g. GitHub repo link, project pull request, or assessment notes) to upgrade <strong>{proofSkill}</strong>.
-            </p>
+      {/* TAB 2: ALL USER SKILLS RECORD */}
+      {activeTab === 'all-skills' && (
+        <div className="skill-gap-page__gaps-list">
+          {/* Filters */}
+          <div className="skill-gap-page__filter-row">
+            {['ALL', 'DEMONSTRATED', 'PROBABLE', 'CLAIMED', 'UNKNOWN'].map((state) => (
+              <button
+                key={state}
+                onClick={() => setFilterState(state)}
+                className={`skill-gap-page__filter-pill ${filterState === state ? 'skill-gap-page__filter-pill--active' : ''}`}
+              >
+                {state}
+              </button>
+            ))}
+          </div>
 
-            <form onSubmit={handleSubmitEvidence} className="mt-4 space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Claimed Proficiency Level ({proofProficiency}%)
-                </label>
-                <input
-                  type="range"
-                  min="40"
-                  max="100"
-                  value={proofProficiency}
-                  onChange={(e) => setProofProficiency(Number(e.target.value))}
-                  className="w-full accent-blue-600"
-                />
+          <div className="skill-gap-page__skills-grid">
+            {filteredSkills.map((skill) => (
+              <div
+                key={skill.id}
+                className="skill-gap-page__skill-card"
+              >
+                <div className="skill-gap-page__skill-card-top">
+                  <div>
+                    <span className="skill-gap-page__skill-card-category">
+                      {skill.category}
+                    </span>
+                    <h4 className="skill-gap-page__skill-card-title">{skill.name}</h4>
+                  </div>
+                  <Badge variant={skill.state} size="sm">
+                    {skill.state}
+                  </Badge>
+                </div>
+
+                <p className="skill-gap-page__skill-card-desc">{skill.description}</p>
+
+                <div className="skill-gap-page__evidence-box">
+                  <div>
+                    <strong className="skill-gap-page__target-role-strong">Evidence Source:</strong> {skill.source} ({skill.date})
+                  </div>
+                  {skill.relatedProject && (
+                    <div>
+                      <strong className="skill-gap-page__target-role-strong">Related Project:</strong> {skill.relatedProject}
+                    </div>
+                  )}
+                  {skill.limitations && (
+                    <div>
+                      <strong className="skill-gap-page__target-role-strong">Known Limitations:</strong> {skill.limitations}
+                    </div>
+                  )}
+                  <div className="skill-gap-page__evidence-highlight">
+                    <strong>Recommended Action:</strong> {skill.nextAction}
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
+      {/* Add Self-Reported Skill Modal */}
+      {isAddModalOpen && (
+        <div className="skill-gap-page__modal-overlay" onClick={() => setIsAddModalOpen(false)}>
+          <div className="skill-gap-page__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="skill-gap-page__modal-header">
+              <h3 className="skill-gap-page__modal-title">Add or Correct Self-Reported Skill</h3>
+              <button onClick={() => setIsAddModalOpen(false)} className="skill-gap-page__modal-close">
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddSkillSubmit} className="skill-gap-page__modal-form">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Evidence Proof URL (GitHub Repo / Live PR / Deployment)
-                </label>
+                <label className="skill-gap-page__modal-label">Skill Name</label>
                 <input
-                  type="url"
-                  placeholder="https://github.com/..."
-                  value={proofLink}
-                  onChange={(e) => setProofLink(e.target.value)}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Implementation Summary & Reflection Notes
-                </label>
-                <textarea
-                  rows="3"
+                  type="text"
+                  value={newSkillForm.name}
+                  onChange={(e) => setNewSkillForm({ ...newSkillForm, name: e.target.value })}
+                  placeholder="e.g. Docker, TypeScript, PostgreSQL..."
+                  className="skill-gap-page__input"
                   required
-                  placeholder="Detail the specific architectural patterns or features you built to prove this competency..."
-                  value={proofReason}
-                  onChange={(e) => setProofReason(e.target.value)}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEvidenceModalOpen(false)}
-                >
+              <div className="skill-gap-page__modal-grid">
+                <div>
+                  <label className="skill-gap-page__modal-label">Category</label>
+                  <select
+                    value={newSkillForm.category}
+                    onChange={(e) => setNewSkillForm({ ...newSkillForm, category: e.target.value })}
+                    className="skill-gap-page__input"
+                  >
+                    <option value="Frontend">Frontend</option>
+                    <option value="Backend">Backend</option>
+                    <option value="Database">Database</option>
+                    <option value="Language">Language</option>
+                    <option value="DevOps">DevOps</option>
+                    <option value="Testing">Testing</option>
+                    <option value="Security">Security</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="skill-gap-page__modal-label">Evidence Status</label>
+                  <select
+                    value={newSkillForm.state}
+                    onChange={(e) => setNewSkillForm({ ...newSkillForm, state: e.target.value })}
+                    className="skill-gap-page__input"
+                  >
+                    <option value="Claimed">Claimed (Self-reported)</option>
+                    <option value="Probable">Probable (Partial exercises)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="skill-gap-page__modal-label">Brief Description</label>
+                <textarea
+                  rows={2}
+                  value={newSkillForm.description}
+                  onChange={(e) => setNewSkillForm({ ...newSkillForm, description: e.target.value })}
+                  placeholder="Describe your current exposure or experience with this skill..."
+                  className="skill-gap-page__input"
+                />
+              </div>
+
+              <div className="skill-gap-page__modal-notice">
+                <strong style={{ display: 'block' }}>Evidence Principle Reminder:</strong>
+                Adding a skill as self-reported creates a Claimed entry. To upgrade to Demonstrated, you must build and submit a Project Lab deliverable or complete an assessment.
+              </div>
+
+              <div className="skill-gap-page__modal-actions">
+                <Button type="button" variant="outline" size="sm" onClick={() => setIsAddModalOpen(false)}>
                   Cancel
                 </Button>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="sm"
-                  loading={submittingProof}
-                  icon={ShieldCheck}
-                >
-                  Confirm & Update State to Verified
+                <Button type="submit" variant="primary" size="sm">
+                  Add to My Record
                 </Button>
               </div>
             </form>

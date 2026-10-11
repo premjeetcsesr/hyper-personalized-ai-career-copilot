@@ -58,7 +58,7 @@ const skillEvidenceSchema = new Schema({
   confidence: { type: Number, min: 0, max: 100, default: 50 }, // 0 to 100
   source: {
     type: String,
-    enum: ['resume', 'github', 'interview', 'mission', 'self_report'],
+    enum: ['resume', 'github', 'interview', 'mission', 'self_report', 'exercise', 'none', 'assessment', 'project'],
     default: 'self_report'
   },
   evidenceDetails: {

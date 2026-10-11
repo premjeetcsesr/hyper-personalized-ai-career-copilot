@@ -58,7 +58,7 @@ exports.startInterview = async (req, res, next) => {
 exports.submitAnswerAndGetNext = async (req, res, next) => {
   try {
     const { sessionId } = req.params;
-    const { answer } = req.body;
+    const answer = req.body.answer || req.body.userAnswer;
 
     if (!answer || answer.trim().length < 5) {
       return res.status(400).json({ success: false, message: 'Please provide a meaningful answer to the question.' });

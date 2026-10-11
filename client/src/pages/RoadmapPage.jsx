@@ -1,284 +1,292 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Compass,
-  CheckCircle,
-  Clock,
-  ExternalLink,
-  BookOpen,
-  Code2,
+  Milestone,
   CheckCircle2,
-  RotateCcw,
-  Sparkles,
+  Play,
+  Pause,
   ArrowRight,
   ShieldCheck,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  BookOpen,
+  HelpCircle
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { roadmapAPI } from '../services/api';
-import Card from '../components/common/Card';
+import { useCareerData } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
-import ProgressBar from '../components/common/ProgressBar';
+import './RoadmapPage.css';
 
 export default function RoadmapPage() {
-  const { profile } = useAuth();
-  const [loading, setLoading] = useState(true);
-  const [roadmap, setRoadmap] = useState(null);
-  const [updatingId, setUpdatingId] = useState(null);
-  const [recalculating, setRecalculating] = useState(false);
-  const [expandedMilestones, setExpandedMilestones] = useState({});
+  const { profile, roadmap, updateRoadmapStepStatus } = useCareerData();
 
-  useEffect(() => {
-    loadRoadmap();
-  }, [profile?.targetRole]);
+  const [expandedSteps, setExpandedSteps] = useState({ 'step-3': true });
+  const [notification, setNotification] = useState(null);
 
-  const loadRoadmap = async () => {
-    setLoading(true);
-    try {
-      const res = await roadmapAPI.getRoadmap();
-      setRoadmap(res.data.roadmap);
-      // Expand first milestone by default
-      if (res.data.roadmap?.phases?.[0]?.milestones?.[0]) {
-        setExpandedMilestones({
-          [res.data.roadmap.phases[0].milestones[0].milestoneId]: true
-        });
-      }
-    } catch (err) {
-      console.error('Failed to load roadmap:', err);
-    } finally {
-      setLoading(false);
-    }
+  const toggleExpand = (stepId) => {
+    setExpandedSteps(prev => ({
+      ...prev,
+      [stepId]: !prev[stepId]
+    }));
   };
 
-  const handleStatusChange = async (milestoneId, newStatus) => {
-    setUpdatingId(milestoneId);
-    try {
-      const res = await roadmapAPI.updateStatus({ milestoneId, status: newStatus });
-      setRoadmap(res.data.roadmap);
-    } catch (err) {
-      console.error('Failed to update status:', err);
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const handleRecalculate = async () => {
-    setRecalculating(true);
-    try {
-      const res = await roadmapAPI.recalculate();
-      setRoadmap(res.data.roadmap);
-    } catch (err) {
-      console.error('Failed to recalculate roadmap:', err);
-    } finally {
-      setRecalculating(false);
-    }
-  };
-
-  const toggleExpand = (id) => {
-    setExpandedMilestones(prev => ({ ...prev, [id]: !prev[id] }));
-  };
-
-  if (loading) {
-    return (
-      <div className="py-20 flex flex-col items-center justify-center space-y-3">
-        <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-slate-500">Generating personalized 5-stage learning roadmap...</p>
-      </div>
+  const handleStatusUpdate = (stepId, newStatus, stepTitle) => {
+    updateRoadmapStepStatus(stepId, newStatus);
+    setNotification(
+      newStatus === 'completed'
+        ? `Milestone "${stepTitle}" marked completed. Note: Practical competencies remain Claimed until project deliverable is verified in Project Lab.`
+        : `Milestone "${stepTitle}" updated to ${newStatus}.`
     );
-  }
+    setTimeout(() => setNotification(null), 5000);
+  };
+
+  const completedCount = roadmap.filter(s => s.status === 'completed').length;
+  const progressPercent = Math.round((completedCount / roadmap.length) * 100);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="roadmap-page">
+      {/* Toast Notification */}
+      {notification && (
+        <div className="roadmap-page__toast" role="status">
+          <div className="roadmap-page__toast-content">
+            <CheckCircle2 style={{ width: '1rem', height: '1rem', color: 'var(--color-brand-blue)', flexShrink: 0 }} />
+            <span>{notification}</span>
+          </div>
+          <button onClick={() => setNotification(null)} className="roadmap-page__toast-dismiss" aria-label="Dismiss">
+            Dismiss
+          </button>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="roadmap-page__header">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Personalized Learning Roadmap</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Engineered using the 5-phase execution cycle: <strong className="text-blue-700">LEARN → PRACTICE → BUILD → VALIDATE → IMPROVE</strong>.
+          <div className="roadmap-page__badge">
+            <Milestone style={{ width: '0.875rem', height: '0.875rem', color: 'var(--color-brand-blue)' }} />
+            <span>Rule-Based Adaptive Roadmap</span>
+          </div>
+          <h1 className="roadmap-page__title">
+            Personalized Learning Roadmap
+          </h1>
+          <p className="roadmap-page__subtitle">
+            Tied directly to your target role (<strong style={{ color: 'var(--color-text-primary)' }}>{profile.targetRole}</strong>) and identified skill deficiencies. Each milestone pairs theoretical objectives with practical evidence tasks.
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleRecalculate}
-          loading={recalculating}
-          icon={RotateCcw}
-          className="border-slate-300"
-        >
-          Regenerate from Latest Evidence
-        </Button>
-      </div>
-
-      {/* Overall Progress Gauge */}
-      <Card className="bg-gradient-to-r from-blue-50/60 to-indigo-50/60 border-blue-200/80">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Progress Badge */}
+        <div className="roadmap-page__progress-widget">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-700 block">
-              Curriculum Trajectory
-            </span>
-            <h3 className="text-base font-bold text-slate-900 mt-0.5">
-              Target Track: {roadmap?.targetRole || 'Full-Stack Developer'}
-            </h3>
-            <p className="text-xs text-slate-600 mt-1">
-              Completing milestones directly advances your skill evidence ratings from Claimed to Verified.
-            </p>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: 700, display: 'block' }}>Roadmap Completion</span>
+            <span style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>{completedCount} of {roadmap.length} Milestones</span>
           </div>
-
-          <div className="sm:w-64 w-full">
-            <ProgressBar
-              value={roadmap?.overallProgress || 0}
-              label="Overall Completion"
-              size="md"
-              color="blue"
-            />
+          <div className="roadmap-page__progress-circle">
+            {progressPercent}%
           </div>
         </div>
-      </Card>
+      </div>
 
-      {/* Phases and Milestones */}
-      <div className="space-y-6">
-        {roadmap?.phases?.map((phase) => (
-          <div key={phase.phaseNumber} className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="h-6 w-6 rounded-full bg-[#102A43] text-white flex items-center justify-center text-xs font-bold shrink-0">
-                {phase.phaseNumber}
-              </span>
-              <div>
-                <h3 className="text-sm font-bold text-slate-900">{phase.title}</h3>
-                <span className="text-[11px] text-slate-500">
-                  Focus: {phase.focus} • Estimated Duration: {phase.durationWeeks} weeks
-                </span>
-              </div>
-            </div>
+      {/* Rule-Based Adaptation Transparency Banner */}
+      <div className="roadmap-page__disclosure">
+        <HelpCircle style={{ width: '1rem', height: '1rem', color: 'var(--color-text-muted)', flexShrink: 0, marginTop: '0.125rem' }} />
+        <div>
+          <strong style={{ color: 'var(--color-text-primary)', display: 'block' }}>Rule-Based Adaptation Disclosure:</strong>
+          <span>
+            This roadmap is calibrated using transparent rule-based adaptation. As you complete project submissions and mock interview evaluations, corresponding steps mark complete, and subsequent prerequisite milestones unlock automatically.
+          </span>
+        </div>
+      </div>
 
-            <div className="space-y-3 pl-2 sm:pl-4 border-l-2 border-slate-200 ml-3">
-              {phase.milestones?.map((m) => {
-                const isExpanded = expandedMilestones[m.milestoneId];
-                return (
-                  <Card key={m.milestoneId} className="!p-4 sm:!p-5 bg-white border-slate-200 shadow-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex-1 cursor-pointer" onClick={() => toggleExpand(m.milestoneId)}>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h4 className="text-sm font-bold text-slate-900">{m.skill}</h4>
-                          <Badge variant={m.priority} size="sm">{m.priority}</Badge>
-                          <Badge variant={m.status} size="sm">{m.status}</Badge>
-                        </div>
-                        <p className="text-xs text-slate-600 mt-1">{m.objective}</p>
-                      </div>
+      {/* Roadmap Steps Accordion */}
+      <div className="roadmap-page__steps">
+        {roadmap.map((step, index) => {
+          const isExpanded = !!expandedSteps[step.id];
+          const isCompleted = step.status === 'completed';
+          const isInProgress = step.status === 'in-progress';
+          const isPaused = step.status === 'paused';
 
-                      <div className="flex items-center gap-2 shrink-0">
-                        {/* Status Switcher Buttons */}
-                        <div className="inline-flex rounded-lg border border-slate-200 p-0.5 bg-slate-50 text-xs">
-                          <button
-                            onClick={() => handleStatusChange(m.milestoneId, 'pending')}
-                            disabled={updatingId === m.milestoneId}
-                            className={`px-2 py-1 rounded text-[11px] font-medium transition-colors ${
-                              m.status === 'pending' ? 'bg-white shadow-xs font-bold text-slate-800' : 'text-slate-500 hover:text-slate-800'
-                            }`}
-                          >
-                            Pending
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(m.milestoneId, 'in_progress')}
-                            disabled={updatingId === m.milestoneId}
-                            className={`px-2 py-1 rounded text-[11px] font-medium transition-colors ${
-                              m.status === 'in_progress' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                            }`}
-                          >
-                            In Progress
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(m.milestoneId, 'completed')}
-                            disabled={updatingId === m.milestoneId}
-                            className={`px-2 py-1 rounded text-[11px] font-medium transition-colors ${
-                              m.status === 'completed' ? 'bg-emerald-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800'
-                            }`}
-                          >
-                            Completed
-                          </button>
-                        </div>
+          const badgeVariant = isCompleted ? 'completed' : isInProgress ? 'in_progress' : isPaused ? 'warning' : 'default';
+          const badgeLabel = isCompleted ? 'Completed' : isInProgress ? 'In Progress' : isPaused ? 'Paused' : 'Not Started';
 
-                        <button
-                          onClick={() => toggleExpand(m.milestoneId)}
-                          className="p-1 text-slate-400 hover:text-slate-600"
-                        >
-                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                        </button>
-                      </div>
+          const indexClass = isCompleted
+            ? 'roadmap-page__step-index--completed'
+            : isInProgress
+            ? 'roadmap-page__step-index--in-progress'
+            : isPaused
+            ? 'roadmap-page__step-index--paused'
+            : 'roadmap-page__step-index--default';
+
+          const cardClass = isInProgress
+            ? 'roadmap-page__step-card--in-progress'
+            : isCompleted
+            ? 'roadmap-page__step-card--completed'
+            : '';
+
+          return (
+            <div
+              key={step.id}
+              className={`roadmap-page__step-card ${cardClass}`}
+            >
+              {/* Step Header Bar */}
+              <div
+                onClick={() => toggleExpand(step.id)}
+                className="roadmap-page__step-header"
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+                  <div className={`roadmap-page__step-index ${indexClass}`}>
+                    {isCompleted ? <CheckCircle2 style={{ width: '1rem', height: '1rem' }} /> : index + 1}
+                  </div>
+
+                  <div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
+                      <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)' }}>
+                        Step {index + 1} • {step.estimatedEffort}
+                      </span>
+                      <Badge variant={badgeVariant} size="sm">
+                        {badgeLabel}
+                      </Badge>
                     </div>
 
-                    {/* Expanded 5-Stage Cycle Breakdown */}
-                    {isExpanded && (
-                      <div className="mt-4 pt-4 border-t border-slate-100 space-y-4">
-                        {/* 5-Step Cycle */}
-                        <div>
-                          <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                            The 5-Step Verification Cycle
-                          </h5>
-                          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
-                            <div className="p-2.5 rounded-lg bg-blue-50/60 border border-blue-100">
-                              <span className="font-bold text-blue-800 block text-[10px] uppercase">1. Learn</span>
-                              <p className="text-slate-600 text-[11px] mt-1">{m.cycle?.learn}</p>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100">
-                              <span className="font-bold text-indigo-800 block text-[10px] uppercase">2. Practice</span>
-                              <p className="text-slate-600 text-[11px] mt-1">{m.cycle?.practice}</p>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-amber-50/60 border border-amber-100">
-                              <span className="font-bold text-amber-800 block text-[10px] uppercase">3. Build</span>
-                              <p className="text-slate-600 text-[11px] mt-1">{m.cycle?.build}</p>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-teal-50/60 border border-teal-100">
-                              <span className="font-bold text-teal-800 block text-[10px] uppercase">4. Validate</span>
-                              <p className="text-slate-600 text-[11px] mt-1">{m.cycle?.validate}</p>
-                            </div>
-                            <div className="p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100">
-                              <span className="font-bold text-emerald-800 block text-[10px] uppercase">5. Improve</span>
-                              <p className="text-slate-600 text-[11px] mt-1">{m.cycle?.improve}</p>
-                            </div>
-                          </div>
-                        </div>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>
+                      {step.title}
+                    </h3>
+                  </div>
+                </div>
 
-                        {/* Resources */}
-                        {m.resources?.length > 0 && (
-                          <div>
-                            <h5 className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                              Recommended Resources
-                            </h5>
-                            <div className="flex flex-wrap gap-2">
-                              {m.resources.map((res, rIdx) => (
-                                <a
-                                  key={rIdx}
-                                  href={res.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-200"
-                                >
-                                  <BookOpen className="w-3.5 h-3.5" />
-                                  <span>{res.title}</span>
-                                  <ExternalLink className="w-3 h-3 text-slate-400" />
-                                </a>
-                              ))}
-                            </div>
-                          </div>
-                        )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                  <button style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer', padding: '0.25rem' }}>
+                    {isExpanded ? <ChevronUp style={{ width: '1.25rem', height: '1.25rem' }} /> : <ChevronDown style={{ width: '1.25rem', height: '1.25rem' }} />}
+                  </button>
+                </div>
+              </div>
 
-                        <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-600">
-                          <span>
-                            <strong>Validation Criteria:</strong> {m.completionCriteria}
-                          </span>
-                          <span className="text-slate-400 shrink-0">Est. {m.estimatedHours} hrs</span>
-                        </div>
-                      </div>
-                    )}
-                  </Card>
-                );
-              })}
+              {/* Step Body (Expanded) */}
+              {isExpanded && (
+                <div className="roadmap-page__step-body">
+                  {/* Objective & Why it matters */}
+                  <div className="roadmap-page__step-grid">
+                    <div className="roadmap-page__step-box">
+                      <span style={{ fontWeight: 700, color: 'var(--color-text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '10px', display: 'block', marginBottom: '0.25rem' }}>
+                        Learning Objective
+                      </span>
+                      <p style={{ color: 'var(--color-text-primary)', margin: 0, lineHeight: 1.5 }}>{step.learningObjective}</p>
+                    </div>
+
+                    <div className="roadmap-page__step-box roadmap-page__step-box--blue">
+                      <span style={{ fontWeight: 700, color: 'var(--color-brand-blue)', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '10px', display: 'block', marginBottom: '0.25rem' }}>
+                        Why It Matters for {profile.targetRole}
+                      </span>
+                      <p style={{ color: '#172554', margin: 0, lineHeight: 1.5 }}>{step.whyItMatters}</p>
+                    </div>
+                  </div>
+
+                  {/* Prerequisites & Instructions */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--color-text-secondary)' }}>
+                      <strong style={{ color: 'var(--color-text-primary)' }}>Prerequisites:</strong>
+                      <span>{step.prerequisites}</span>
+                    </div>
+
+                    <div className="roadmap-page__step-box">
+                      <strong style={{ color: 'var(--color-text-primary)', display: 'block', marginBottom: '0.25rem' }}>Guidance & Learning Instructions:</strong>
+                      <p style={{ color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>{step.instructions}</p>
+                    </div>
+                  </div>
+
+                  {/* Practice Activity & Evidence Task */}
+                  <div className="roadmap-page__step-grid">
+                    <div className="roadmap-page__step-box roadmap-page__step-box--card">
+                      <strong style={{ color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.25rem' }}>
+                        <BookOpen style={{ width: '0.875rem', height: '0.875rem', color: 'var(--color-brand-blue)' }} />
+                        Practice Activity
+                      </strong>
+                      <p style={{ color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>{step.practiceActivity}</p>
+                    </div>
+
+                    <div className="roadmap-page__step-box roadmap-page__step-box--card">
+                      <strong style={{ color: 'var(--color-text-primary)', display: 'flex', alignItems: 'center', gap: '0.375rem', marginBottom: '0.25rem' }}>
+                        <ShieldCheck style={{ width: '0.875rem', height: '0.875rem', color: '#059669' }} />
+                        Evidence Deliverable Task
+                      </strong>
+                      <p style={{ color: 'var(--color-text-secondary)', margin: 0, lineHeight: 1.5 }}>{step.evidenceTask}</p>
+                    </div>
+                  </div>
+
+                  {/* Completion Criteria */}
+                  <div className="roadmap-page__step-criteria">
+                    <span style={{ fontWeight: 700, display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#065f46', fontSize: '11px', marginBottom: '0.125rem' }}>
+                      Completion Criteria:
+                    </span>
+                    {step.completionCriteria}
+                  </div>
+
+                  {/* Interactive Status Controls */}
+                  <div className="roadmap-page__step-actions">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {step.status !== 'in-progress' && !isCompleted && (
+                        <Button
+                          size="xs"
+                          variant="primary"
+                          onClick={() => handleStatusUpdate(step.id, 'in-progress', step.title)}
+                          icon={Play}
+                        >
+                          Start Step
+                        </Button>
+                      )}
+
+                      {step.status === 'in-progress' && (
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          onClick={() => handleStatusUpdate(step.id, 'paused', step.title)}
+                          icon={Pause}
+                        >
+                          Pause Step
+                        </Button>
+                      )}
+
+                      {step.status === 'paused' && (
+                        <Button
+                          size="xs"
+                          variant="primary"
+                          onClick={() => handleStatusUpdate(step.id, 'in-progress', step.title)}
+                          icon={Play}
+                        >
+                          Resume Step
+                        </Button>
+                      )}
+
+                      {!isCompleted ? (
+                        <Button
+                          size="xs"
+                          variant="outline"
+                          onClick={() => handleStatusUpdate(step.id, 'completed', step.title)}
+                          icon={CheckCircle2}
+                        >
+                          Mark as Completed
+                        </Button>
+                      ) : (
+                        <button
+                          onClick={() => handleStatusUpdate(step.id, 'in-progress', step.title)}
+                          style={{ fontSize: '11px', color: 'var(--color-text-secondary)', textDecoration: 'underline', background: 'none', border: 'none', cursor: 'pointer' }}
+                        >
+                          Reopen Step
+                        </button>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Link to="/app/projects">
+                        <Button size="xs" variant="primary" icon={ArrowRight}>
+                          Open Associated Practice Task
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -1,26 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  BarChart3,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle,
-  TrendingUp,
-  Target,
   ArrowRight,
-  Info,
-  Scale,
-  Sparkles,
-  ExternalLink
+  AlertCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { readinessAPI } from '../services/api';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
-import Badge from '../components/common/Badge';
 import ProgressBar from '../components/common/ProgressBar';
 import ReadinessRadarChart from '../components/charts/ReadinessRadarChart';
+import './CareerReadinessPage.css';
 
 export default function CareerReadinessPage() {
   const { profile } = useAuth();
@@ -44,9 +34,9 @@ export default function CareerReadinessPage() {
 
   if (loading) {
     return (
-      <div className="py-20 flex flex-col items-center justify-center space-y-3">
-        <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-xs text-slate-500">Calculating 6-dimensional career readiness model...</p>
+      <div style={{ padding: '5rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
+        <div style={{ width: '2rem', height: '2rem', borderRadius: '50%', border: '3px solid var(--color-brand-blue)', borderTopColor: 'transparent', animation: 'spin 1s linear infinite' }} />
+        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Calculating 6-dimensional career readiness model...</p>
       </div>
     );
   }
@@ -106,96 +96,94 @@ export default function CareerReadinessPage() {
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="career-readiness-page">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Career Readiness Engine</h1>
-        <p className="text-xs text-slate-500 mt-1">
-          Multidimensional readiness index for <strong className="text-slate-800">{readiness?.targetRole}</strong>.
+      <div className="career-readiness-page__header">
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Career Readiness Engine</h1>
+        <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginTop: '0.25rem' }}>
+          Multidimensional readiness index for <strong style={{ color: 'var(--color-text-primary)' }}>{readiness?.targetRole}</strong>.
         </p>
       </div>
 
       {/* Primary Readiness Index Banner */}
-      <Card className="bg-gradient-to-r from-[#102A43] via-[#1B3A5A] to-[#243B53] text-white !p-6 sm:!p-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-blue-300 block">
-              Aggregate Career Readiness Index
+      <div className="career-readiness-page__banner">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#93c5fd', display: 'block' }}>
+            Aggregate Career Readiness Index
+          </span>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+            <span style={{ fontSize: '3rem', fontWeight: 800, color: '#ffffff', lineHeight: 1 }}>
+              {readiness?.overallReadiness || 65}%
             </span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-5xl font-extrabold text-white">
-                {readiness?.overallReadiness || 65}%
-              </span>
-              <span className="text-sm text-slate-300">Composite Readiness</span>
-            </div>
-            <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
-              Formula: {readiness?.formulaExplanation || 'Weighted sum across 6 evidentiary pillars.'}
-            </p>
+            <span style={{ fontSize: '0.875rem', color: '#cbd5e1' }}>Composite Readiness</span>
           </div>
-
-          {readiness?.nextActionRecommendation && (
-            <div className="md:w-80 w-full p-4 rounded-xl bg-white/10 border border-white/15 backdrop-blur-xs space-y-2">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 block">
-                Highest-Impact Next Action
-              </span>
-              <h4 className="text-xs font-bold text-white">
-                {readiness.nextActionRecommendation.title}
-              </h4>
-              <p className="text-[11px] text-slate-200">
-                {readiness.nextActionRecommendation.description}
-              </p>
-              <Link to={readiness.nextActionRecommendation.targetLink}>
-                <Button size="sm" variant="primary" className="w-full mt-2 !py-1 text-xs" icon={ArrowRight}>
-                  Execute Action
-                </Button>
-              </Link>
-            </div>
-          )}
+          <p style={{ fontSize: 'var(--font-size-xs)', color: '#cbd5e1', maxWidth: '36rem', lineHeight: 1.6, margin: 0 }}>
+            Formula: {readiness?.formulaExplanation || 'Weighted sum across 6 evidentiary pillars.'}
+          </p>
         </div>
-      </Card>
+
+        {readiness?.nextActionRecommendation && (
+          <div className="career-readiness-page__action-box">
+            <span style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#fde68a', display: 'block' }}>
+              Highest-Impact Next Action
+            </span>
+            <h4 style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: '#ffffff', margin: 0 }}>
+              {readiness.nextActionRecommendation.title}
+            </h4>
+            <p style={{ fontSize: '11px', color: '#e2e8f0', margin: 0, lineHeight: 1.5 }}>
+              {readiness.nextActionRecommendation.description}
+            </p>
+            <Link to={readiness.nextActionRecommendation.targetLink}>
+              <Button size="sm" variant="primary" style={{ width: '100%', marginTop: '0.5rem' }} icon={ArrowRight}>
+                Execute Action
+              </Button>
+            </Link>
+          </div>
+        )}
+      </div>
 
       {/* Radar Chart & Dimension Scores */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="career-readiness-page__layout">
         {/* Radar Chart Card */}
         <Card
           title="6-Pillar Competency Radar"
           subtitle="Visualizing balance across technical, delivery, and communication pillars"
         >
           <ReadinessRadarChart dimensions={dims} />
-          <div className="mt-4 pt-3 border-t border-slate-100 text-center">
-            <span className="text-[11px] text-slate-500">
+          <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid var(--color-slate-100)', textAlign: 'center' }}>
+            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
               Balanced profiles demonstrate reduced technical interview drop-off.
             </span>
           </div>
         </Card>
 
         {/* Dimension Breakdown Cards */}
-        <div className="lg:col-span-2 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 px-1">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <h3 style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', margin: 0 }}>
             Component Pillar Scorecards
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="career-readiness-page__pillars-grid">
             {dimensionsList.map((dim) => (
-              <Card key={dim.key} className="!p-4 bg-white border-slate-200">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-xs font-bold text-slate-900">{dim.name}</span>
-                  <span className="text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+              <div key={dim.key} className="career-readiness-page__pillar-card">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.375rem' }}>
+                  <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--color-text-primary)' }}>{dim.name}</span>
+                  <span style={{ fontSize: '10px', fontWeight: 600, color: 'var(--color-text-muted)', backgroundColor: 'var(--color-slate-100)', padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-sm)' }}>
                     Weight: {dim.weight}
                   </span>
                 </div>
 
-                <div className="flex items-baseline justify-between mb-2">
-                  <span className="text-2xl font-extrabold text-slate-900">{dim.score}%</span>
-                  <span className="text-[11px] text-slate-400">Score</span>
+                <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--color-text-primary)' }}>{dim.score}%</span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>Score</span>
                 </div>
 
                 <ProgressBar value={dim.score} size="sm" color={dim.color} showValue={false} />
 
-                <p className="text-[11px] text-slate-500 mt-2.5 line-clamp-2">
+                <p style={{ fontSize: '11px', color: 'var(--color-text-secondary)', marginTop: '0.625rem', margin: 0, lineHeight: 1.5 }}>
                   {dim.rationale}
                 </p>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
@@ -206,11 +194,11 @@ export default function CareerReadinessPage() {
         title="Scoring Methodology & Transparency Disclosures"
         subtitle="Detailed accountability and design philosophy"
       >
-        <div className="space-y-3 text-xs text-slate-600 leading-relaxed">
-          <p>
-            <strong>How Overall Readiness is Calculated:</strong> The index is a transparent, deterministic weighted average calculated by the backend readiness engine:
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', lineHeight: 1.6 }}>
+          <p style={{ margin: 0 }}>
+            <strong style={{ color: 'var(--color-text-primary)' }}>How Overall Readiness is Calculated:</strong> The index is a transparent, deterministic weighted average calculated by the backend readiness engine:
           </p>
-          <ul className="list-disc pl-5 space-y-1 font-mono text-[11px] text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-200">
+          <ul style={{ listStyle: 'disc', paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.25rem', fontFamily: 'monospace', fontSize: '11px', color: 'var(--color-slate-700)', backgroundColor: 'var(--color-slate-50)', padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-slate-200)', margin: 0 }}>
             <li>Technical Readiness: 25% (verified & probable skills vs required competency profile)</li>
             <li>Project Readiness: 20% (verified practical missions & GitHub repository depth)</li>
             <li>Market Alignment: 15% (percentage of benchmark competencies met with deficiency &lt; 20%)</li>
@@ -219,9 +207,9 @@ export default function CareerReadinessPage() {
             <li>Resume & Profile Readiness: 10% (information completeness and keyword alignment)</li>
           </ul>
 
-          <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 flex items-start gap-2.5">
-            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <span className="text-[11px]">
+          <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: '#fffbeb', border: '1px solid #fde68a', color: '#78350f', display: 'flex', alignItems: 'flex-start', gap: '0.625rem' }}>
+            <AlertCircle style={{ width: '1rem', height: '1rem', color: '#d97706', flexShrink: 0, marginTop: '0.125rem' }} />
+            <span style={{ fontSize: '11px' }}>
               <strong>Academic & Educational Disclaimer:</strong> Career readiness scores are decision-support estimates engineered for self-assessment and learning optimization. They do not constitute a guarantee of employment, salary offer, interview shortlisting, or recruitment placement.
             </span>
           </div>

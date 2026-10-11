@@ -3,426 +3,413 @@ import { useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
   Briefcase,
-  Code2,
-  Clock,
+  Target,
   ArrowRight,
   ArrowLeft,
-  CheckCircle,
+  CheckCircle2,
+  Sparkles,
+  HelpCircle,
+  Code2,
+  Layers,
   Plus,
-  Trash2,
-  Sparkles
+  X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { profileAPI } from '../services/api';
-import Card from '../components/common/Card';
+import { useCareerData, CAREER_CATALOGUE } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
-import Badge from '../components/common/Badge';
-
-const ROLES = [
-  'Full-Stack Developer',
-  'Frontend Developer',
-  'Backend Developer',
-  'Software Engineer',
-  'Data Analyst',
-  'AI/ML Engineer'
-];
-
-const COMMON_SKILLS = [
-  'JavaScript', 'React.js', 'Node.js', 'Express', 'Python', 'SQL',
-  'MongoDB', 'Docker', 'Git & GitHub', 'TypeScript', 'Tailwind CSS', 'Java', 'C++'
-];
+import './OnboardingPage.css';
 
 export default function OnboardingPage() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { profile, updateProfile, setTargetRole, addSelfReportedSkill } = useCareerData();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const totalSteps = 5;
 
-  // Form State
-  const [formData, setFormData] = useState({
-    fullName: user?.name || '',
-    college: profile?.college || '',
-    degree: 'B.Tech',
-    branch: 'Computer Science and Engineering',
-    graduationYear: 2026,
-    currentSemester: 'Semester 7',
-    targetRole: 'Full-Stack Developer',
-    weeklyLearningHours: 15,
-    claimedSkills: ['JavaScript', 'React.js', 'Node.js'],
-    newSkillInput: '',
-    projects: [
-      {
-        title: 'Academic Full-Stack Project',
-        description: 'MERN stack application for campus management.',
-        technologies: ['React.js', 'Node.js', 'MongoDB']
-      }
-    ]
-  });
+  // Onboarding answers state with sensible defaults preserved across steps
+  const [stage, setStage] = useState(profile.currentStage || 'Undergraduate Student (CS / IT / Engineering)');
+  const [selectedInterests, setSelectedInterests] = useState(profile.interests || ['Web Development', 'Backend & APIs']);
+  const [currentGoal, setCurrentGoal] = useState(profile.goals || 'Build practical portfolio projects and prepare for technical interviews');
+  const [chosenCareer, setChosenCareer] = useState(profile.targetRole || 'Full-Stack Developer');
+  const [sharedSkills, setSharedSkills] = useState(['HTML & CSS', 'JavaScript']);
+  const [newSkillInput, setNewSkillInput] = useState('');
 
-  const handleSkillToggle = (skill) => {
-    if (formData.claimedSkills.includes(skill)) {
-      setFormData({
-        ...formData,
-        claimedSkills: formData.claimedSkills.filter(s => s !== skill)
-      });
+  const stageOptions = [
+    'High School / Secondary School',
+    'Undergraduate Student (CS / IT / Engineering)',
+    'Non-Tech Degree Student / Career Switcher',
+    'Bootcamp Learner / Self-Taught Developer',
+    'Early-Career Junior Professional',
+    'I’m not sure yet'
+  ];
+
+  const fieldOptions = [
+    'Web Development',
+    'Backend & APIs',
+    'Frontend & UI/UX',
+    'Databases & Data Engineering',
+    'Data Science & Analytics',
+    'Mobile App Development',
+    'Cybersecurity & Network Security',
+    'Cloud & DevOps',
+    'I’m not sure yet'
+  ];
+
+  const goalOptions = [
+    'Land an entry-level software or data role',
+    'Build verified portfolio projects with code artifacts',
+    'Identify and fix my technical skill gaps',
+    'Prepare for technical interviews and coding rounds',
+    'Explore different paths to see what fits my interests',
+    'I’m not sure yet'
+  ];
+
+  const toggleInterest = (interest) => {
+    if (interest === 'I’m not sure yet') {
+      setSelectedInterests(['I’m not sure yet']);
+      return;
+    }
+    const filtered = selectedInterests.filter(i => i !== 'I’m not sure yet');
+    if (filtered.includes(interest)) {
+      setSelectedInterests(filtered.filter(i => i !== interest));
     } else {
-      setFormData({
-        ...formData,
-        claimedSkills: [...formData.claimedSkills, skill]
-      });
+      setSelectedInterests([...filtered, interest]);
     }
   };
 
-  const handleAddCustomSkill = () => {
-    if (formData.newSkillInput.trim() && !formData.claimedSkills.includes(formData.newSkillInput.trim())) {
-      setFormData({
-        ...formData,
-        claimedSkills: [...formData.claimedSkills, formData.newSkillInput.trim()],
-        newSkillInput: ''
-      });
+  const handleAddSkill = () => {
+    if (newSkillInput.trim() && !sharedSkills.includes(newSkillInput.trim())) {
+      setSharedSkills([...sharedSkills, newSkillInput.trim()]);
+      setNewSkillInput('');
     }
   };
 
-  const handleAddProject = () => {
-    setFormData({
-      ...formData,
-      projects: [
-        ...formData.projects,
-        { title: '', description: '', technologies: [] }
-      ]
+  const handleRemoveSkill = (skillToRemove) => {
+    setSharedSkills(sharedSkills.filter(s => s !== skillToRemove));
+  };
+
+  const handleNext = () => {
+    if (step < totalSteps) {
+      setStep(step + 1);
+    } else {
+      handleComplete();
+    }
+  };
+
+  const handleBack = () => {
+    if (step > 1) {
+      setStep(step - 1);
+    }
+  };
+
+  const handleComplete = () => {
+    const finalStage = stage === 'I’m not sure yet' ? 'Exploring Career Paths' : stage;
+    const finalRole = chosenCareer === 'I’m not sure yet' ? 'Full-Stack Developer' : chosenCareer;
+
+    updateProfile({
+      currentStage: finalStage,
+      interests: selectedInterests,
+      goals: currentGoal,
+      targetRole: finalRole
     });
+
+    setTargetRole(finalRole);
+
+    sharedSkills.forEach(s => {
+      addSelfReportedSkill({
+        name: s,
+        category: 'General',
+        state: 'Claimed',
+        description: 'Shared during onboarding questionnaire.'
+      });
+    });
+
+    navigate('/app');
   };
 
-  const handleRemoveProject = (index) => {
-    const updated = formData.projects.filter((_, idx) => idx !== index);
-    setFormData({ ...formData, projects: updated });
-  };
-
-  const handleProjectChange = (index, field, value) => {
-    const updated = [...formData.projects];
-    updated[index][field] = value;
-    setFormData({ ...formData, projects: updated });
-  };
-
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        fullName: formData.fullName,
-        college: formData.college,
-        degree: formData.degree,
-        branch: formData.branch,
-        graduationYear: Number(formData.graduationYear),
-        currentSemester: formData.currentSemester,
-        targetRole: formData.targetRole,
-        weeklyLearningHours: Number(formData.weeklyLearningHours),
-        claimedSkills: formData.claimedSkills,
-        projects: formData.projects.filter(p => p.title.trim())
-      };
-
-      const res = await profileAPI.completeOnboarding(payload);
-      refreshProfile(res.data.profile);
-      navigate('/app');
-    } catch (err) {
-      console.error('Onboarding submission failed:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const progressPercent = Math.round((step / totalSteps) * 100);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-      <div className="max-w-3xl mx-auto w-full">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold mb-3">
-            <GraduationCap className="w-3.5 h-3.5 text-blue-600" />
-            <span>Profile Calibration Wizard</span>
+    <div className="onboarding-page">
+      {/* Top Header */}
+      <header className="onboarding-page__header">
+        <div className="onboarding-page__brand">
+          <div className="onboarding-page__logo">
+            <img src="/app-icon.svg" alt="AI Career Co-Pilot" className="onboarding-page__logo-img" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
-            Personalize Your Career Journey
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Team Technovoo1 • Profile Calibration Wizard
-          </p>
+          <span className="onboarding-page__brand-title">AI Career Co-Pilot</span>
         </div>
 
-        {/* Stepper indicator */}
-        <div className="flex items-center justify-between max-w-md mx-auto mb-8 px-4">
-          {[
-            { num: 1, label: 'Education' },
-            { num: 2, label: 'Target Role' },
-            { num: 3, label: 'Skills & Projects' }
-          ].map((s) => (
-            <div key={s.num} className="flex items-center gap-2">
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
-                  step === s.num
-                    ? 'bg-blue-600 text-white'
-                    : step > s.num
-                    ? 'bg-emerald-600 text-white'
-                    : 'bg-slate-200 text-slate-600'
-                }`}
-              >
-                {step > s.num ? <CheckCircle className="w-4 h-4" /> : s.num}
-              </div>
-              <span className={`text-xs font-medium ${step === s.num ? 'text-slate-900' : 'text-slate-500'}`}>
-                {s.label}
-              </span>
-            </div>
-          ))}
+        <button
+          onClick={() => navigate('/app')}
+          className="onboarding-page__skip-btn"
+        >
+          Skip to Dashboard
+        </button>
+      </header>
+
+      {/* Main Questionnaire Box */}
+      <main className="onboarding-page__main">
+        {/* Progress Bar */}
+        <div className="onboarding-page__progress-wrap">
+          <div className="onboarding-page__progress-header">
+            <span>Step {step} of {totalSteps}</span>
+            <span>{progressPercent}% Complete</span>
+          </div>
+          <div className="onboarding-page__progress-track">
+            <div
+              className="onboarding-page__progress-fill"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
-        <Card className="shadow-lg border-slate-200">
-          {/* STEP 1: Academic details */}
+        <div className="onboarding-page__card">
+          {/* STEP 1: Education / Stage */}
           {step === 1 && (
-            <div className="space-y-4">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-base font-bold text-slate-900">Academic Background</h2>
-                <p className="text-xs text-slate-500">Provide your current institution and degree program.</p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Institution</label>
-                  <input
-                    type="text"
-                    value={formData.college}
-                    onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Degree</label>
-                  <input
-                    type="text"
-                    value={formData.degree}
-                    onChange={(e) => setFormData({ ...formData, degree: e.target.value })}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Branch / Major</label>
-                  <input
-                    type="text"
-                    value={formData.branch}
-                    onChange={(e) => setFormData({ ...formData, branch: e.target.value })}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Graduation Year</label>
-                  <input
-                    type="number"
-                    value={formData.graduationYear}
-                    onChange={(e) => setFormData({ ...formData, graduationYear: e.target.value })}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Current Semester</label>
-                  <select
-                    value={formData.currentSemester}
-                    onChange={(e) => setFormData({ ...formData, currentSemester: e.target.value })}
-                    className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-                  >
-                    {['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8', 'Graduated'].map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-end">
-                <Button variant="primary" onClick={() => setStep(2)} icon={ArrowRight}>
-                  Next: Target Role
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: Target Role & Hours */}
-          {step === 2 && (
-            <div className="space-y-5">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-base font-bold text-slate-900">Career Ambition & Commitment</h2>
-                <p className="text-xs text-slate-500">Select the target job role and weekly time you can invest.</p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">Target Career Role</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {ROLES.map((role) => (
-                    <div
-                      key={role}
-                      onClick={() => setFormData({ ...formData, targetRole: role })}
-                      className={`p-3.5 rounded-xl border cursor-pointer transition-all ${
-                        formData.targetRole === role
-                          ? 'border-blue-600 bg-blue-50/60 ring-2 ring-blue-500/20 font-semibold text-blue-900'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs">{role}</span>
-                        {formData.targetRole === role && <CheckCircle className="w-4 h-4 text-blue-600" />}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Preferred Learning Hours Per Week: <span className="font-bold text-blue-600">{formData.weeklyLearningHours} hrs/week</span>
-                </label>
-                <input
-                  type="range"
-                  min="5"
-                  max="40"
-                  step="1"
-                  value={formData.weeklyLearningHours}
-                  onChange={(e) => setFormData({ ...formData, weeklyLearningHours: e.target.value })}
-                  className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
-                />
-                <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                  <span>5 hrs (Casual)</span>
-                  <span>15-20 hrs (Recommended)</span>
-                  <span>40 hrs (Intensive)</span>
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-between">
-                <Button variant="outline" onClick={() => setStep(1)} icon={ArrowLeft}>
-                  Back
-                </Button>
-                <Button variant="primary" onClick={() => setStep(3)} icon={ArrowRight}>
-                  Next: Skills & Projects
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: Self-Reported Skills & Experience */}
-          {step === 3 && (
-            <div className="space-y-5">
-              <div className="border-b border-slate-100 pb-3">
-                <h2 className="text-base font-bold text-slate-900">Claimed Skills & Project History</h2>
-                <p className="text-xs text-slate-500">
-                  Select skills you have worked with. Note: These are recorded initially as <strong>Claimed</strong> until verified by evidence.
+            <div>
+              <div className="onboarding-page__question-header">
+                <span className="onboarding-page__question-badge">
+                  Question 1
+                </span>
+                <h2 className="onboarding-page__question-title">
+                  What is your current education or experience stage?
+                </h2>
+                <p className="onboarding-page__question-desc">
+                  This helps calibrate your initial roadmap difficulty and prerequisite depth.
                 </p>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-2">Technical Skills (Self-Reported)</label>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {COMMON_SKILLS.map((skill) => {
-                    const isSelected = formData.claimedSkills.includes(skill);
-                    return (
-                      <button
-                        key={skill}
-                        type="button"
-                        onClick={() => handleSkillToggle(skill)}
-                        className={`text-xs px-3 py-1.5 rounded-lg border transition-all ${
-                          isSelected
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
-                            : 'bg-white text-slate-700 border-slate-300 hover:border-slate-400'
-                        }`}
-                      >
-                        {isSelected ? '✓ ' : '+ '}{skill}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Add other skill (e.g. Next.js, Redis)"
-                    value={formData.newSkillInput}
-                    onChange={(e) => setFormData({ ...formData, newSkillInput: e.target.value })}
-                    className="flex-1 text-xs p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddCustomSkill(); } }}
-                  />
-                  <Button size="sm" variant="outline" onClick={handleAddCustomSkill} icon={Plus}>
-                    Add
-                  </Button>
-                </div>
-              </div>
-
-              {/* Projects section */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-semibold text-slate-700">Project Highlights</label>
-                  <Button size="sm" variant="ghost" onClick={handleAddProject} icon={Plus} className="!text-xs">
-                    Add Project
-                  </Button>
-                </div>
-
-                <div className="space-y-3">
-                  {formData.projects.map((proj, idx) => (
-                    <div key={idx} className="p-3 rounded-lg border border-slate-200 bg-slate-50/50 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <input
-                          type="text"
-                          placeholder="Project Title"
-                          value={proj.title}
-                          onChange={(e) => handleProjectChange(idx, 'title', e.target.value)}
-                          className="text-xs font-semibold p-1.5 border border-slate-300 rounded bg-white w-full mr-2"
-                        />
-                        {formData.projects.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveProject(idx)}
-                            className="text-slate-400 hover:text-rose-600 p-1"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                      <textarea
-                        rows="2"
-                        placeholder="Brief project description & technical stack"
-                        value={proj.description}
-                        onChange={(e) => handleProjectChange(idx, 'description', e.target.value)}
-                        className="text-xs p-1.5 border border-slate-300 rounded bg-white w-full"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="pt-4 flex justify-between">
-                <Button variant="outline" onClick={() => setStep(2)} icon={ArrowLeft}>
-                  Back
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={handleSubmit}
-                  loading={loading}
-                  icon={Sparkles}
-                >
-                  Complete Onboarding & View Dashboard
-                </Button>
+              <div className="onboarding-page__options-list">
+                {stageOptions.map((opt) => (
+                  <label
+                    key={opt}
+                    onClick={() => setStage(opt)}
+                    className={`onboarding-page__option-item ${stage === opt ? 'onboarding-page__option-item--active' : ''}`}
+                  >
+                    <span>{opt}</span>
+                    <input
+                      type="radio"
+                      name="stage"
+                      checked={stage === opt}
+                      onChange={() => setStage(opt)}
+                      style={{ accentColor: 'var(--color-brand-blue)' }}
+                    />
+                  </label>
+                ))}
               </div>
             </div>
           )}
-        </Card>
-      </div>
+
+          {/* STEP 2: Fields of Interest */}
+          {step === 2 && (
+            <div>
+              <div className="onboarding-page__question-header">
+                <span className="onboarding-page__question-badge">
+                  Question 2
+                </span>
+                <h2 className="onboarding-page__question-title">
+                  Which fields interest you?
+                </h2>
+                <p className="onboarding-page__question-desc">
+                  Select one or more areas you are curious about exploring.
+                </p>
+              </div>
+
+              <div className="onboarding-page__grid-options">
+                {fieldOptions.map((field) => {
+                  const isChecked = selectedInterests.includes(field);
+                  return (
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() => toggleInterest(field)}
+                      className={`onboarding-page__grid-btn ${isChecked ? 'onboarding-page__grid-btn--active' : ''}`}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span>{field}</span>
+                        {isChecked && <CheckCircle2 style={{ width: 16, height: 16, color: 'var(--color-brand-blue)' }} />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: Current Goal */}
+          {step === 3 && (
+            <div>
+              <div className="onboarding-page__question-header">
+                <span className="onboarding-page__question-badge">
+                  Question 3
+                </span>
+                <h2 className="onboarding-page__question-title">
+                  What is your primary goal right now?
+                </h2>
+                <p className="onboarding-page__question-desc">
+                  We will prioritize recommendations that align directly with your immediate objective.
+                </p>
+              </div>
+
+              <div className="onboarding-page__options-list">
+                {goalOptions.map((goal) => (
+                  <label
+                    key={goal}
+                    onClick={() => setCurrentGoal(goal)}
+                    className={`onboarding-page__option-item ${currentGoal === goal ? 'onboarding-page__option-item--active' : ''}`}
+                  >
+                    <span>{goal}</span>
+                    <input
+                      type="radio"
+                      name="goal"
+                      checked={currentGoal === goal}
+                      onChange={() => setCurrentGoal(goal)}
+                      style={{ accentColor: 'var(--color-brand-blue)' }}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: Target Career Selection */}
+          {step === 4 && (
+            <div>
+              <div className="onboarding-page__question-header">
+                <span className="onboarding-page__question-badge">
+                  Question 4
+                </span>
+                <h2 className="onboarding-page__question-title">
+                  Do you have a target career in mind?
+                </h2>
+                <p className="onboarding-page__question-desc">
+                  Choose your target or pick "I'm not sure yet" to explore recommended paths.
+                </p>
+              </div>
+
+              <div className="onboarding-page__options-list">
+                {CAREER_CATALOGUE.map((career) => (
+                  <label
+                    key={career.id}
+                    onClick={() => setChosenCareer(career.title)}
+                    className={`onboarding-page__option-item ${chosenCareer === career.title ? 'onboarding-page__option-item--active' : ''}`}
+                  >
+                    <div>
+                      <span style={{ fontWeight: 'bold', display: 'block' }}>{career.title}</span>
+                      <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-text-secondary)' }}>{career.category} • {career.overview.slice(0, 75)}...</span>
+                    </div>
+                    <input
+                      type="radio"
+                      name="career"
+                      checked={chosenCareer === career.title}
+                      onChange={() => setChosenCareer(career.title)}
+                      style={{ accentColor: 'var(--color-brand-blue)' }}
+                    />
+                  </label>
+                ))}
+                <label
+                  onClick={() => setChosenCareer('I’m not sure yet')}
+                  className={`onboarding-page__option-item ${chosenCareer === 'I’m not sure yet' ? 'onboarding-page__option-item--active' : ''}`}
+                >
+                  <div>
+                    <span style={{ fontWeight: 'bold', display: 'block' }}>I’m not sure yet</span>
+                    <span style={{ fontSize: 'var(--text-2xs)', color: 'var(--color-text-secondary)' }}>We'll recommend foundational full-stack milestones you can change later</span>
+                  </div>
+                  <input
+                    type="radio"
+                    name="career"
+                    checked={chosenCareer === 'I’m not sure yet'}
+                    onChange={() => setChosenCareer('I’m not sure yet')}
+                    style={{ accentColor: 'var(--color-brand-blue)' }}
+                  />
+                </label>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 5: Existing Skills / Experience */}
+          {step === 5 && (
+            <div>
+              <div className="onboarding-page__question-header">
+                <span className="onboarding-page__question-badge">
+                  Question 5
+                </span>
+                <h2 className="onboarding-page__question-title">
+                  Which skills or tools have you worked with so far?
+                </h2>
+                <p className="onboarding-page__question-desc">
+                  Self-reported skills start as Claimed in your profile and can be proven through Project Lab missions.
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-3)' }}>
+                <div style={{ display: 'flex', gap: 'var(--spacing-2)' }}>
+                  <input
+                    type="text"
+                    value={newSkillInput}
+                    onChange={(e) => setNewSkillInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
+                    placeholder="e.g. React, Python, Git, SQL..."
+                  />
+                  <Button variant="outline" size="sm" onClick={handleAddSkill} icon={Plus}>
+                    Add
+                  </Button>
+                </div>
+
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--spacing-2)', minHeight: '40px' }}>
+                  {sharedSkills.map((sk) => (
+                    <span
+                      key={sk}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '4px 10px',
+                        borderRadius: 'var(--radius-full)',
+                        backgroundColor: 'var(--color-surface-subtle)',
+                        border: '1px solid var(--color-border)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: '500'
+                      }}
+                    >
+                      <span>{sk}</span>
+                      <button
+                        onClick={() => handleRemoveSkill(sk)}
+                        style={{ color: 'var(--color-text-muted)', cursor: 'pointer', padding: 0 }}
+                        aria-label={`Remove ${sk}`}
+                      >
+                        <X style={{ width: 12, height: 12 }} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Footer Controls */}
+          <div className="onboarding-page__footer">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBack}
+              disabled={step === 1}
+              icon={ArrowLeft}
+            >
+              Back
+            </Button>
+
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleNext}
+              icon={step === totalSteps ? CheckCircle2 : ArrowRight}
+            >
+              {step === totalSteps ? 'Complete & Enter Workspace' : 'Continue'}
+            </Button>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

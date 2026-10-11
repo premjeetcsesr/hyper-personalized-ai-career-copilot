@@ -1,398 +1,465 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   UserCheck,
-  GraduationCap,
-  Briefcase,
-  Clock,
-  Github,
-  Linkedin,
-  Globe,
-  Save,
-  CheckCircle,
-  Plus,
-  Trash2,
-  Sparkles,
-  ShieldCheck
+  CheckCircle2,
+  Edit3,
+  X
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { profileAPI } from '../services/api';
-import Card from '../components/common/Card';
+import { useCareerData, CAREER_CATALOGUE } from '../context/CareerDataContext';
 import Button from '../components/common/Button';
-import Badge from '../components/common/Badge';
-
-const ROLES = [
-  'Full-Stack Developer',
-  'Frontend Developer',
-  'Backend Developer',
-  'Software Engineer',
-  'Data Analyst',
-  'AI/ML Engineer'
-];
+import './ProfilePage.css';
 
 export default function ProfilePage() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { profile, skills, projects, interviewSessions, updateProfile, setTargetRole } = useCareerData();
 
-  const [saving, setSaving] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-  const [newSkill, setNewSkill] = useState('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [notification, setNotification] = useState(null);
 
-  const [form, setForm] = useState({
-    fullName: '',
-    college: '',
-    degree: '',
-    branch: '',
-    graduationYear: 2026,
-    currentSemester: '',
-    targetRole: 'Full-Stack Developer',
-    weeklyLearningHours: 15,
-    bio: '',
-    githubUsername: '',
-    linkedinUrl: '',
-    portfolioUrl: '',
-    claimedSkills: [],
-    projects: []
+  // Edit Form State
+  const [editForm, setEditForm] = useState({
+    fullName: profile.fullName,
+    targetRole: profile.targetRole,
+    currentStage: profile.currentStage,
+    weeklyLearningHours: profile.weeklyLearningHours,
+    bio: profile.bio,
+    goals: profile.goals,
+    interests: [...profile.interests],
+    learningStyle: profile.learningPreferences?.style || 'Hands-on practical projects',
+    pacing: profile.learningPreferences?.pacing || 'Self-paced structured',
+    feedbackPref: profile.learningPreferences?.feedback || 'Detailed rubrics with transparent criteria'
   });
 
-  useEffect(() => {
-    if (profile) {
-      setForm({
-        fullName: profile.fullName || user?.name || '',
-        college: profile.college || '',
-        degree: profile.degree || 'B.Tech',
-        branch: profile.branch || 'Computer Science and Engineering',
-        graduationYear: profile.graduationYear || 2026,
-        currentSemester: profile.currentSemester || 'Semester 7',
-        targetRole: profile.targetRole || 'Full-Stack Developer',
-        weeklyLearningHours: profile.weeklyLearningHours || 15,
-        bio: profile.bio || '',
-        githubUsername: profile.githubUsername || '',
-        linkedinUrl: profile.linkedinUrl || '',
-        portfolioUrl: profile.portfolioUrl || '',
-        claimedSkills: profile.claimedSkills || [],
-        projects: profile.projects || []
-      });
-    }
-  }, [profile, user]);
+  const [newInterestInput, setNewInterestInput] = useState('');
 
-  const handleSave = async (e) => {
+  const handleOpenEdit = () => {
+    setEditForm({
+      fullName: profile.fullName,
+      targetRole: profile.targetRole,
+      currentStage: profile.currentStage,
+      weeklyLearningHours: profile.weeklyLearningHours,
+      bio: profile.bio,
+      goals: profile.goals,
+      interests: [...profile.interests],
+      learningStyle: profile.learningPreferences?.style || 'Hands-on practical projects',
+      pacing: profile.learningPreferences?.pacing || 'Self-paced structured',
+      feedbackPref: profile.learningPreferences?.feedback || 'Detailed rubrics with transparent criteria'
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleAddInterest = () => {
+    if (newInterestInput.trim() && !editForm.interests.includes(newInterestInput.trim())) {
+      setEditForm({ ...editForm, interests: [...editForm.interests, newInterestInput.trim()] });
+      setNewInterestInput('');
+    }
+  };
+
+  const handleRemoveInterest = (interest) => {
+    setEditForm({ ...editForm, interests: editForm.interests.filter(i => i !== interest) });
+  };
+
+  const handleSaveProfile = (e) => {
     e.preventDefault();
-    setSaving(true);
-    setSuccessMsg('');
-    try {
-      const res = await profileAPI.updateProfile(form);
-      refreshProfile(res.data.profile);
-      setSuccessMsg('Profile updated successfully!');
-      setTimeout(() => setSuccessMsg(''), 4000);
-    } catch (err) {
-      console.error('Save failed:', err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !form.claimedSkills.includes(newSkill.trim())) {
-      setForm({ ...form, claimedSkills: [...form.claimedSkills, newSkill.trim()] });
-      setNewSkill('');
-    }
-  };
-
-  const handleRemoveSkill = (skill) => {
-    setForm({
-      ...form,
-      claimedSkills: form.claimedSkills.filter(s => s !== skill)
+    updateProfile({
+      fullName: editForm.fullName,
+      targetRole: editForm.targetRole,
+      currentStage: editForm.currentStage,
+      weeklyLearningHours: Number(editForm.weeklyLearningHours),
+      bio: editForm.bio,
+      goals: editForm.goals,
+      interests: editForm.interests,
+      learningPreferences: {
+        style: editForm.learningStyle,
+        pacing: editForm.pacing,
+        feedback: editForm.feedbackPref
+      }
     });
-  };
 
-  const handleAddProject = () => {
-    setForm({
-      ...form,
-      projects: [
-        ...form.projects,
-        { title: '', description: '', technologies: [], repoUrl: '', liveUrl: '' }
-      ]
-    });
-  };
+    if (editForm.targetRole !== profile.targetRole) {
+      setTargetRole(editForm.targetRole);
+    }
 
-  const handleRemoveProject = (index) => {
-    const updated = form.projects.filter((_, idx) => idx !== index);
-    setForm({ ...form, projects: updated });
-  };
-
-  const handleProjectChange = (index, field, value) => {
-    const updated = [...form.projects];
-    updated[index][field] = value;
-    setForm({ ...form, projects: updated });
+    setIsEditModalOpen(false);
+    setNotification('Career profile and learning preferences updated successfully.');
+    setTimeout(() => setNotification(null), 4000);
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="profile-page">
+      {/* Toast Notice */}
+      {notification && (
+        <div className="profile-page__toast" role="status">
+          <div className="profile-page__toast-content">
+            <CheckCircle2 style={{ width: '1rem', height: '1rem', color: '#059669', flexShrink: 0 }} />
+            <span>{notification}</span>
+          </div>
+          <button onClick={() => setNotification(null)} style={{ background: 'none', border: 'none', color: '#059669', cursor: 'pointer', padding: '0.25rem' }}>
+            <X style={{ width: '0.875rem', height: '0.875rem' }} />
+          </button>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="profile-page__header">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">My Career Profile</h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Maintain your student credentials, academic standing, and demonstrated portfolio artifacts.
+          <div className="profile-page__badge">
+            <UserCheck style={{ width: '0.875rem', height: '0.875rem', color: 'var(--color-brand-blue)' }} />
+            <span>Learner Central Record</span>
+          </div>
+          <h1 className="profile-page__title">
+            Career Profile & Twin
+          </h1>
+          <p className="profile-page__subtitle">
+            A comprehensive, verifiable record of your goals, verified abilities, project artifacts, and interview history. Transparently differentiates demonstrated competence from self-reported claims.
           </p>
         </div>
 
-        {successMsg && (
-          <div className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold flex items-center gap-1.5">
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
-            <span>{successMsg}</span>
+        <div>
+          <Button
+            variant="outline"
+            size="sm"
+            icon={Edit3}
+            onClick={handleOpenEdit}
+          >
+            Edit Profile & Goals
+          </Button>
+        </div>
+      </div>
+
+      {/* Profile Overview Card */}
+      <div className="profile-page__overview-card">
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+          <div className="profile-page__avatar">
+            {profile.fullName.charAt(0)}
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>{profile.fullName}</h2>
+              <span style={{ padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-sm)', fontSize: '11px', fontWeight: 700, backgroundColor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}>
+                {profile.currentStage}
+              </span>
+            </div>
+            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', margin: '0.125rem 0' }}>{profile.email} • {profile.college}</p>
+            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', marginTop: '0.5rem', maxWidth: '36rem', lineHeight: 1.6, margin: 0 }}>
+              {profile.bio}
+            </p>
+
+            <div style={{ marginTop: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+              {profile.interests.map((int, i) => (
+                <span key={i} style={{ padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-sm)', fontSize: '11px', backgroundColor: 'var(--color-slate-100)', color: 'var(--color-slate-700)', fontWeight: 500 }}>
+                  {int}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Goal & Commitment Widget */}
+        <div className="profile-page__goal-widget">
+          <div>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: 700, display: 'block' }}>Target Career</span>
+            <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-text-primary)' }}>{profile.targetRole}</span>
+          </div>
+
+          <div>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: 700, display: 'block' }}>Weekly Learning Hours</span>
+            <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 600, color: 'var(--color-text-secondary)' }}>{profile.weeklyLearningHours} hours / week</span>
+          </div>
+
+          <div>
+            <span style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: 700, display: 'block' }}>Stated Goal</span>
+            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: '0.125rem 0 0 0' }}>{profile.goals}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Learning Preferences */}
+      <div style={{ padding: '1.25rem', borderRadius: 'var(--radius-lg)', backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-border)', boxShadow: 'var(--shadow-sm)' }}>
+        <h3 style={{ fontSize: 'var(--font-size-xs)', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--color-text-muted)', fontWeight: 700, margin: '0 0 0.75rem 0' }}>Learning Preferences</h3>
+        <div className="profile-page__preferences-grid">
+          <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-slate-50)', border: '1px solid var(--color-slate-100)' }}>
+            <span style={{ color: 'var(--color-text-muted)', display: 'block', fontWeight: 500 }}>Learning Style</span>
+            <strong style={{ color: 'var(--color-text-primary)', marginTop: '0.125rem', display: 'block' }}>{profile.learningPreferences?.style || 'Hands-on practical projects'}</strong>
+          </div>
+          <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-slate-50)', border: '1px solid var(--color-slate-100)' }}>
+            <span style={{ color: 'var(--color-text-muted)', display: 'block', fontWeight: 500 }}>Pacing Preference</span>
+            <strong style={{ color: 'var(--color-text-primary)', marginTop: '0.125rem', display: 'block' }}>{profile.learningPreferences?.pacing || 'Self-paced structured'}</strong>
+          </div>
+          <div style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-slate-50)', border: '1px solid var(--color-slate-100)' }}>
+            <span style={{ color: 'var(--color-text-muted)', display: 'block', fontWeight: 500 }}>Feedback Preference</span>
+            <strong style={{ color: 'var(--color-text-primary)', marginTop: '0.125rem', display: 'block' }}>{profile.learningPreferences?.feedback || 'Detailed rubrics with transparent criteria'}</strong>
+          </div>
+        </div>
+      </div>
+
+      {/* Skills & Evidence Status */}
+      <div className="profile-page__section-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem' }}>
+          <div>
+            <h3 style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)', margin: 0 }}>Skills & Evidentiary Classification</h3>
+            <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Every skill is grounded by verifiable sources.</span>
+          </div>
+          <Link to="/app/skills">
+            <Button size="xs" variant="outline">
+              Manage in My Skills
+            </Button>
+          </Link>
+        </div>
+
+        <div className="profile-page__skills-grid">
+          {skills.map((skill) => (
+            <div
+              key={skill.id}
+              className="profile-page__skill-item"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <strong style={{ color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' }}>{skill.name}</strong>
+                <span
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: 'var(--radius-sm)',
+                    backgroundColor: skill.state === 'Demonstrated' ? '#d1fae5' : skill.state === 'Probable' ? '#dbeafe' : skill.state === 'Claimed' ? '#fef3c7' : '#e2e8f0',
+                    color: skill.state === 'Demonstrated' ? '#065f46' : skill.state === 'Probable' ? '#1e40af' : skill.state === 'Claimed' ? '#92400e' : '#334155',
+                    border: `1px solid ${skill.state === 'Demonstrated' ? '#a7f3d0' : skill.state === 'Probable' ? '#bfdbfe' : skill.state === 'Claimed' ? '#fde68a' : '#cbd5e1'}`
+                  }}
+                >
+                  {skill.state}
+                </span>
+              </div>
+
+              <p style={{ color: 'var(--color-text-secondary)', lineHeight: 1.5, margin: 0 }}>{skill.description}</p>
+
+              <div style={{ paddingTop: '0.5rem', borderTop: '1px solid rgba(226, 232, 240, 0.8)', fontSize: '11px', color: 'var(--color-text-muted)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <div>Source: <strong style={{ color: 'var(--color-text-secondary)', fontWeight: 500 }}>{skill.source}</strong> ({skill.date})</div>
+                {skill.limitations && (
+                  <div>Limitations: <span style={{ fontStyle: 'italic', color: 'var(--color-text-secondary)' }}>{skill.limitations}</span></div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Projects & Code Deliverables */}
+      <div className="profile-page__section-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem' }}>
+          <div>
+            <h3 style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)', margin: 0 }}>Project Deliverables & Artifacts</h3>
+            <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Real projects demonstrating technical capabilities.</span>
+          </div>
+          <Link to="/app/projects">
+            <Button size="xs" variant="primary">
+              Open Project Lab
+            </Button>
+          </Link>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {projects.map((proj) => (
+            <div
+              key={proj.id}
+              style={{ padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', backgroundColor: 'var(--color-surface)', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: 'var(--font-size-xs)' }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <strong style={{ color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)' }}>{proj.title}</strong>
+                <span
+                  style={{
+                    padding: '0.125rem 0.5rem',
+                    borderRadius: 'var(--radius-sm)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    backgroundColor: proj.status === 'completed' ? '#ecfdf5' : proj.status === 'in-progress' ? '#eff6ff' : 'var(--color-slate-100)',
+                    color: proj.status === 'completed' ? '#047857' : proj.status === 'in-progress' ? '#1d4ed8' : 'var(--color-slate-600)',
+                    border: `1px solid ${proj.status === 'completed' ? '#a7f3d0' : proj.status === 'in-progress' ? '#bfdbfe' : 'var(--color-border)'}`
+                  }}
+                >
+                  {proj.status === 'completed' ? 'Verified Submission' : proj.status === 'in-progress' ? 'In Progress' : 'Available Mission'}
+                </span>
+              </div>
+
+              <p style={{ color: 'var(--color-text-secondary)', margin: 0 }}>{proj.projectObjective}</p>
+
+              {proj.submission && (
+                <div style={{ padding: '0.625rem', borderRadius: 'var(--radius-md)', backgroundColor: 'var(--color-slate-50)', border: '1px solid rgba(226, 232, 240, 0.8)', fontSize: '11px', color: 'var(--color-text-secondary)', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                  <div>
+                    <strong style={{ color: 'var(--color-text-primary)' }}>Code Artifact:</strong>{' '}
+                    <a href={proj.submission.repoUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--color-brand-blue)', textDecoration: 'underline' }}>
+                      {proj.submission.repoUrl}
+                    </a>
+                  </div>
+                  {proj.feedback && (
+                    <div style={{ color: '#065f46', fontWeight: 500 }}>
+                      Rubric Feedback: {proj.feedback.summary} (Score: {proj.feedback.score}%)
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Interview Practice History */}
+      <div className="profile-page__section-card">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--color-slate-100)', paddingBottom: '0.75rem' }}>
+          <div>
+            <h3 style={{ fontWeight: 700, color: 'var(--color-text-primary)', fontSize: 'var(--font-size-sm)', margin: 0 }}>Interview Arena Practice History</h3>
+            <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)' }}>Record of simulated technical evaluations.</span>
+          </div>
+          <Link to="/app/interview">
+            <Button size="xs" variant="primary">
+              Start New Mock Interview
+            </Button>
+          </Link>
+        </div>
+
+        {interviewSessions.length === 0 ? (
+          <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', fontStyle: 'italic', margin: 0 }}>No interview sessions recorded yet.</p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            {interviewSessions.map((session) => (
+              <div key={session.id} style={{ padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', backgroundColor: 'rgba(248, 250, 252, 0.5)', display: 'flex', flexDirection: 'column', gap: '0.375rem', fontSize: 'var(--font-size-xs)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <strong style={{ color: 'var(--color-text-primary)' }}>{session.topic}</strong>
+                  <span style={{ padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#f3e8ff', color: '#6b21a8', fontWeight: 700, fontSize: '11px' }}>
+                    Score: {session.overallScore}%
+                  </span>
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
+                  Date: {session.date} • Questions Answered: {session.questionsAnswered}
+                </div>
+                <div style={{ color: 'var(--color-text-secondary)' }}>
+                  <strong>Top Strengths:</strong> {session.strengths?.join('; ')}
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6">
-        {/* Academic Credentials Card */}
-        <Card title="Academic Identity" subtitle="Institution and academic enrollment records">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
-              <input
-                type="text"
-                value={form.fullName}
-                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              />
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <div className="profile-page__modal-overlay" onClick={() => setIsEditModalOpen(false)}>
+          <div className="profile-page__modal" onClick={(e) => e.stopPropagation()}>
+            <div className="profile-page__modal-header">
+              <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--color-text-primary)', margin: 0 }}>Edit Career Profile & Goals</h3>
+              <button onClick={() => setIsEditModalOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--color-text-muted)', cursor: 'pointer' }}>
+                <X style={{ width: '1.25rem', height: '1.25rem' }} />
+              </button>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Institution</label>
-              <input
-                type="text"
-                value={form.college}
-                onChange={(e) => setForm({ ...form, college: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Degree</label>
-              <input
-                type="text"
-                value={form.degree}
-                onChange={(e) => setForm({ ...form, degree: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Branch / Specialization</label>
-              <input
-                type="text"
-                value={form.branch}
-                onChange={(e) => setForm({ ...form, branch: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Graduation Year</label>
-              <input
-                type="number"
-                value={form.graduationYear}
-                onChange={(e) => setForm({ ...form, graduationYear: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Current Academic Term</label>
-              <select
-                value={form.currentSemester}
-                onChange={(e) => setForm({ ...form, currentSemester: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              >
-                {['Semester 1', 'Semester 2', 'Semester 3', 'Semester 4', 'Semester 5', 'Semester 6', 'Semester 7', 'Semester 8', 'Graduated'].map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </Card>
-
-        {/* Target Role & Social Links */}
-        <Card title="Career Ambition & Social Links" subtitle="Benchmark settings and external portfolio anchors">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Target Role</label>
-              <select
-                value={form.targetRole}
-                onChange={(e) => setForm({ ...form, targetRole: e.target.value })}
-                className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              >
-                {ROLES.map(r => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Learning Hours Per Week: <strong className="text-blue-600">{form.weeklyLearningHours} hrs</strong>
-              </label>
-              <input
-                type="range"
-                min="5"
-                max="40"
-                value={form.weeklyLearningHours}
-                onChange={(e) => setForm({ ...form, weeklyLearningHours: e.target.value })}
-                className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg cursor-pointer mt-2"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">GitHub Username</label>
-              <div className="relative">
-                <Github className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+            <form onSubmit={handleSaveProfile} className="profile-page__form">
+              <div>
+                <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Full Name</label>
                 <input
                   type="text"
-                  value={form.githubUsername}
-                  onChange={(e) => setForm({ ...form, githubUsername: e.target.value })}
-                  placeholder="e.g. premjeetcsesr or octocat"
-                  className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                  value={editForm.fullName}
+                  onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
+                  className="profile-page__input"
+                  required
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">LinkedIn Profile</label>
-              <div className="relative">
-                <Linkedin className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div>
+                  <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Target Career</label>
+                  <select
+                    value={editForm.targetRole}
+                    onChange={(e) => setEditForm({ ...editForm, targetRole: e.target.value })}
+                    className="profile-page__input"
+                  >
+                    {CAREER_CATALOGUE.map(c => (
+                      <option key={c.id} value={c.title}>{c.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Weekly Learning Hours</label>
+                  <input
+                    type="number"
+                    value={editForm.weeklyLearningHours}
+                    onChange={(e) => setEditForm({ ...editForm, weeklyLearningHours: e.target.value })}
+                    className="profile-page__input"
+                    min="1"
+                    max="60"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Current Stage</label>
                 <input
-                  type="url"
-                  value={form.linkedinUrl}
-                  onChange={(e) => setForm({ ...form, linkedinUrl: e.target.value })}
-                  placeholder="https://linkedin.com/in/..."
-                  className="w-full pl-9 pr-3 py-2.5 text-xs border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
+                  type="text"
+                  value={editForm.currentStage}
+                  onChange={(e) => setEditForm({ ...editForm, currentStage: e.target.value })}
+                  className="profile-page__input"
                 />
               </div>
-            </div>
-          </div>
 
-          <div className="mt-4">
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Professional Bio / Summary</label>
-            <textarea
-              rows="3"
-              value={form.bio}
-              onChange={(e) => setForm({ ...form, bio: e.target.value })}
-              placeholder="Brief summary of engineering interests and project work..."
-              className="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-            />
-          </div>
-        </Card>
+              <div>
+                <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Bio / Profile Summary</label>
+                <textarea
+                  rows={2}
+                  value={editForm.bio}
+                  onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                  className="profile-page__input"
+                />
+              </div>
 
-        {/* Claimed Skills */}
-        <Card
-          title="Self-Reported Claimed Skills"
-          subtitle="Skills declared by candidate. Under the 'Evidence Before Inference' rule, these remain 'Claimed' until substantiated."
-        >
-          <div className="flex flex-wrap gap-2 mb-4">
-            {form.claimedSkills.map(skill => (
-              <span
-                key={skill}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs bg-amber-50 text-amber-800 border border-amber-200"
-              >
-                <span>{skill}</span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSkill(skill)}
-                  className="text-amber-600 hover:text-amber-900"
-                >
-                  ×
-                </button>
-              </span>
-            ))}
-          </div>
+              <div>
+                <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Career Goal Statement</label>
+                <textarea
+                  rows={2}
+                  value={editForm.goals}
+                  onChange={(e) => setEditForm({ ...editForm, goals: e.target.value })}
+                  className="profile-page__input"
+                />
+              </div>
 
-          <div className="flex gap-2 max-w-md">
-            <input
-              type="text"
-              placeholder="Add another skill..."
-              value={newSkill}
-              onChange={(e) => setNewSkill(e.target.value)}
-              className="flex-1 text-xs p-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:outline-none"
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddSkill(); } }}
-            />
-            <Button size="sm" variant="outline" onClick={handleAddSkill} icon={Plus}>
-              Add
-            </Button>
-          </div>
-        </Card>
-
-        {/* Projects Showcase */}
-        <Card
-          title="Demonstrated Projects & Repositories"
-          subtitle="Concrete software artifacts supporting your career readiness"
-          action={
-            <Button size="sm" variant="ghost" onClick={handleAddProject} icon={Plus} className="!text-xs">
-              Add Project
-            </Button>
-          }
-        >
-          <div className="space-y-4">
-            {form.projects.map((proj, idx) => (
-              <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
-                <div className="flex items-center justify-between">
+              {/* Interests Tags */}
+              <div>
+                <label style={{ display: 'block', color: 'var(--color-text-primary)', fontWeight: 600, marginBottom: '0.25rem' }}>Career Interests</label>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <input
                     type="text"
-                    placeholder="Project Title"
-                    value={proj.title}
-                    onChange={(e) => handleProjectChange(idx, 'title', e.target.value)}
-                    className="text-xs font-semibold p-2 border border-slate-300 rounded-lg bg-white flex-1 mr-2"
+                    value={newInterestInput}
+                    onChange={(e) => setNewInterestInput(e.target.value)}
+                    placeholder="Add an interest..."
+                    className="profile-page__input"
+                    style={{ flex: 1 }}
                   />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveProject(idx)}
-                    className="text-slate-400 hover:text-rose-600 p-1.5"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <Button type="button" size="xs" variant="outline" onClick={handleAddInterest}>
+                    Add
+                  </Button>
                 </div>
-
-                <textarea
-                  rows="2"
-                  placeholder="Detailed description of features, problem solved, and technical architecture..."
-                  value={proj.description}
-                  onChange={(e) => handleProjectChange(idx, 'description', e.target.value)}
-                  className="w-full text-xs p-2 border border-slate-300 rounded-lg bg-white"
-                />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <input
-                    type="url"
-                    placeholder="GitHub Repository URL"
-                    value={proj.repoUrl || ''}
-                    onChange={(e) => handleProjectChange(idx, 'repoUrl', e.target.value)}
-                    className="text-xs p-2 border border-slate-300 rounded-lg bg-white"
-                  />
-                  <input
-                    type="url"
-                    placeholder="Live Deployment URL (optional)"
-                    value={proj.liveUrl || ''}
-                    onChange={(e) => handleProjectChange(idx, 'liveUrl', e.target.value)}
-                    className="text-xs p-2 border border-slate-300 rounded-lg bg-white"
-                  />
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+                  {editForm.interests.map(int => (
+                    <span key={int} style={{ padding: '0.125rem 0.5rem', borderRadius: 'var(--radius-sm)', backgroundColor: '#eff6ff', color: '#1e40af', fontSize: '11px', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span>{int}</span>
+                      <button type="button" onClick={() => handleRemoveInterest(int)} style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: 0 }}>
+                        <X style={{ width: '0.75rem', height: '0.75rem' }} />
+                      </button>
+                    </span>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </Card>
 
-        <div className="flex justify-end pt-2">
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            loading={saving}
-            icon={Save}
-          >
-            Save Profile Changes
-          </Button>
+              <div className="profile-page__form-actions">
+                <Button type="button" variant="outline" size="sm" onClick={() => setIsEditModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary" size="sm">
+                  Save Changes
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
-      </form>
+      )}
     </div>
   );
 }

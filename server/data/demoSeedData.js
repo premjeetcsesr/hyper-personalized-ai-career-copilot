@@ -6,153 +6,156 @@ async function getDemoSeedData() {
 
   return {
     user: {
-      name: 'Premjeet Kumar',
-      email: 'student.dev@technovoo.ac.in',
+      name: 'Aarav Sharma',
+      email: 'aarav.sharma@example.edu',
       passwordHash,
       role: 'student',
       isDemoUser: true
     },
     profile: {
-      fullName: 'Premjeet Kumar',
-      college: 'Institute of Engineering & Technology',
+      fullName: 'Aarav Sharma',
+      college: 'City Engineering College',
       degree: 'B.Tech',
-      branch: 'Computer Science and Engineering',
+      branch: 'Computer Science',
       graduationYear: 2026,
-      currentSemester: 'Semester 7',
+      currentSemester: 'Semester 6',
       targetRole: 'Full-Stack Developer',
-      weeklyLearningHours: 16,
-      bio: 'Final year CSE undergraduate passionate about modern full-stack web engineering, cloud-native deployments, and distributed systems.',
-      githubUsername: 'premjeetcsesr',
-      linkedinUrl: 'https://linkedin.com/in/student-dev',
-      portfolioUrl: 'https://student-dev.portfolio.io',
+      weeklyLearningHours: 15,
+      currentStage: 'Learning and building projects',
+      currentChallenge: 'Limited evidence of backend development and database integration',
+      existingEvidence: 'A few basic web-development exercises',
+      bio: 'Early-career developer aiming for Full-Stack development. Currently focusing on transitioning from static frontends to robust backend APIs and database systems.',
+      githubUsername: 'aarav-sharma-dev',
+      linkedinUrl: 'https://linkedin.com/in/aarav-sharma',
+      portfolioUrl: 'https://aaravsharma.dev',
       claimedSkills: [
+        'HTML & CSS',
         'JavaScript',
-        'React.js',
-        'Node.js',
-        'Express',
-        'MongoDB',
-        'HTML5 & Tailwind CSS',
-        'Git & GitHub'
+        'React',
+        'REST APIs',
+        'Git & Version Control'
       ],
       projects: [
         {
-          title: 'Campus Grievance & Facility Portal',
-          description: 'MERN stack web application with JWT auth, role-based admin dashboard, and ticket escalation workflow.',
-          technologies: ['React.js', 'Node.js', 'Express', 'MongoDB', 'Tailwind CSS'],
-          repoUrl: 'https://github.com/premjeetcsesr/campus-grievance-portal',
-          liveUrl: 'https://campus-portal.vercel.app'
+          title: 'Responsive Personal Portfolio',
+          description: 'Multi-section responsive portfolio created with HTML5 and CSS Grid/Flexbox demonstrating responsive design principles.',
+          technologies: ['HTML5', 'CSS3', 'Responsive Design'],
+          repoUrl: 'https://github.com/aarav-sharma-dev/responsive-portfolio',
+          liveUrl: 'https://aarav-portfolio-demo.vercel.app',
+          status: 'Completed',
+          evidenceNotes: 'Verified: Semantic HTML and fluid responsive layout confirmed without horizontal scroll.'
         },
         {
-          title: 'Real-Time Code Collab Sandbox',
-          description: 'Collaborative code editor utilizing WebSockets, syntax highlighting, and execution sandbox.',
-          technologies: ['React.js', 'Socket.io', 'Node.js', 'Tailwind CSS'],
-          repoUrl: 'https://github.com/premjeetcsesr/collab-code-sandbox'
+          title: 'Interactive DOM Task Manager',
+          description: 'Client-side task tracking widget utilizing JavaScript event listeners, local storage persistence, and dynamic DOM manipulation.',
+          technologies: ['JavaScript', 'DOM API', 'CSS'],
+          repoUrl: 'https://github.com/aarav-sharma-dev/dom-task-manager',
+          status: 'Completed',
+          evidenceNotes: 'Probable: Functional JavaScript event logic demonstrated; asynchronous error handling partial.'
         }
       ],
       certifications: [
-        { name: 'Full-Stack Web Development Bootcamp', issuer: 'Coursera / Professional Outreach', year: 2025 }
+        { name: 'Responsive Web Design Certification', issuer: 'freeCodeCamp', year: 2025 }
       ],
-      completenessScore: 85
+      completenessScore: 78
     },
     skillEvidences: [
       {
-        skillName: 'JavaScript / TypeScript',
-        category: 'Language',
-        proficiencyLevel: 82,
+        skillName: 'HTML & CSS',
+        category: 'Frontend',
+        proficiencyLevel: 85,
         state: 'Verified',
         confidence: 90,
-        source: 'github',
+        source: 'exercise',
         evidenceDetails: {
-          repoCount: 6,
-          excerpt: 'Verified across 6 public repositories and verified mock interview assessment.'
+          excerpt: 'Demonstrated through a completed responsive web exercise (Personal Portfolio).',
+          date: '2 weeks ago',
+          limitations: 'Demonstrated in static frontends; interactive state binding still evolving.',
+          nextAction: 'Maintain mastery; apply in full-stack project.'
         }
       },
       {
-        skillName: 'React.js',
+        skillName: 'JavaScript',
+        category: 'Language',
+        proficiencyLevel: 68,
+        state: 'Probable',
+        confidence: 70,
+        source: 'exercise',
+        evidenceDetails: {
+          excerpt: 'Probable based on partial DOM exercises and interactive scripting.',
+          date: '1 week ago',
+          limitations: 'Basic DOM and async functions shown; complex data transformations and state patterns not yet fully demonstrated.',
+          nextAction: 'Strengthen JavaScript closures, event loop, and asynchronous error handling.'
+        }
+      },
+      {
+        skillName: 'React',
         category: 'Frontend',
-        proficiencyLevel: 80,
-        state: 'Verified',
-        confidence: 88,
-        source: 'github',
+        proficiencyLevel: 45,
+        state: 'Claimed',
+        confidence: 40,
+        source: 'self_report',
         evidenceDetails: {
-          excerpt: 'Implemented React Single Page Applications with Context API and custom hooks.'
+          excerpt: 'The learner selected React as a self-reported skill. No verified React project is present in profile.',
+          date: 'Self-reported',
+          limitations: 'No verified code project or assessment demonstrating custom hooks or state management.',
+          nextAction: 'Build an interactive UI component consuming dynamic API data.'
         }
       },
       {
-        skillName: 'Node.js / Express',
-        category: 'Backend',
-        proficiencyLevel: 78,
-        state: 'Probable',
-        confidence: 80,
-        source: 'resume',
-        evidenceDetails: {
-          excerpt: 'Built REST APIs handling student auth and MongoDB CRUD in college project.'
-        }
-      },
-      {
-        skillName: 'MongoDB / PostgreSQL',
-        category: 'Database',
-        proficiencyLevel: 74,
-        state: 'Probable',
-        confidence: 78,
-        source: 'resume',
-        evidenceDetails: {
-          excerpt: 'Mongoose schemas with indexes designed for college portal project.'
-        }
-      },
-      {
-        skillName: 'Git & GitHub Collaboration',
-        category: 'DevOps',
-        proficiencyLevel: 80,
-        state: 'Verified',
-        confidence: 85,
-        source: 'github',
-        evidenceDetails: {
-          excerpt: 'Active commit cadence and pull request merges observed on public GitHub profile.'
-        }
-      },
-      {
-        skillName: 'Web Security & Auth (JWT/OAuth)',
-        category: 'Security',
-        proficiencyLevel: 70,
-        state: 'Probable',
-        confidence: 72,
-        source: 'resume',
-        evidenceDetails: {
-          excerpt: 'Implemented bcrypt hashing and JWT token verification.'
-        }
-      },
-      {
-        skillName: 'Docker Containerization',
-        category: 'DevOps',
-        proficiencyLevel: 30,
+        skillName: 'REST APIs',
+        category: 'Architecture',
+        proficiencyLevel: 40,
         state: 'Claimed',
         confidence: 35,
         source: 'self_report',
         evidenceDetails: {
-          excerpt: 'Self-reported basic Docker awareness. No Dockerfiles detected in GitHub repositories.'
+          excerpt: 'The learner selected REST API development as a skill. No relevant completed API project is present in the demo profile.',
+          date: 'Self-reported',
+          limitations: 'No relevant completed API project is present in the demo profile.',
+          nextAction: 'Build a small REST API with multiple endpoints and basic validation.'
         }
       },
       {
-        skillName: 'Automated Testing (Jest / Supertest)',
-        category: 'Testing',
+        skillName: 'Database Integration',
+        category: 'Database',
         proficiencyLevel: 25,
         state: 'Unknown',
         confidence: 20,
         source: 'none',
         evidenceDetails: {
-          excerpt: 'Zero test suites or test dependencies detected in scanned project repos.'
+          excerpt: 'The skill has not been assessed or there is insufficient information. No database models or query code present.',
+          date: 'Unassessed',
+          limitations: 'No database models or query code detected in demo profile.',
+          nextAction: 'Complete mission: Connect a web application to a database.'
         }
       },
       {
-        skillName: 'System Design & Scalability',
-        category: 'Architecture',
-        proficiencyLevel: 35,
-        state: 'Claimed',
-        confidence: 40,
-        source: 'self_report',
+        skillName: 'Automated Testing',
+        category: 'Testing',
+        proficiencyLevel: 20,
+        state: 'Unknown',
+        confidence: 15,
+        source: 'none',
         evidenceDetails: {
-          excerpt: 'Academic course exposure to OS and distributed concepts without production metrics.'
+          excerpt: 'No test suites or coverage reports recorded in demo profile.',
+          date: 'Unassessed',
+          limitations: 'Zero test suites or test dependencies detected in scanned project repos.',
+          nextAction: 'Write unit tests for API endpoints and validation handlers.'
+        }
+      },
+      {
+        skillName: 'Git & Version Control',
+        category: 'DevOps',
+        proficiencyLevel: 65,
+        state: 'Probable',
+        confidence: 68,
+        source: 'project',
+        evidenceDetails: {
+          excerpt: 'Basic commit history and repository management observed in portfolio exercises repo.',
+          date: '3 weeks ago',
+          limitations: 'Commit history contains basic commits without pull request reviews or conflict resolution.',
+          nextAction: 'Collaborate via feature branches and structured pull requests.'
         }
       }
     ]
